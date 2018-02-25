@@ -20,7 +20,6 @@ svg { border: solid #ccc 1px; }
 <script>
 var width = 1900;
 var height = 900;
-var paddingLeft = 100;
 var padding = 100;
 
 var vis = d3.select("body")
@@ -62,20 +61,19 @@ midnight.setHours(0, 0, 0, 0);
 midnight = midnight.getTime();
 var dayInMill = 86400000
 
-var yScale = d3.scaleLinear()
+var yScale = d3.scaleTime()
     .domain([midnight, midnight + dayInMill])
-    .range([padding, height - padding * 2]);
+    .nice(d3.timeDay, 1)
+    .range([padding, height - padding]);
 
 var yAxis = d3.axisLeft(yScale);
   svg.append("g")
   .attr("class", "yAxis")
-  .attr("transform", "translate(" + (padding) + "," + padding + ")")
+  .attr("transform", "translate(" + padding + ", 0)")
   .call(yAxis
     .tickFormat(d3.timeFormat('%H:%M'))
     .tickSize(0)
     .tickPadding(8))
-
-
 
 /** The code for reading and formatting data */
 var rawData;
@@ -89,6 +87,7 @@ function callback(data) {
     var date = cvtToEST(d.created_at);
     d.created_at = date;
   })
+  drawCircles();
 }
 
 function cvtToEST(date){
@@ -96,6 +95,29 @@ function cvtToEST(date){
     gmt = new Date(date);
     est = new Date(gmt.getTime() + (3600000*offset));
     return est;
+}
+
+function drawCircles(){
+  var circles = svg.selectAll("circle").data(rawData);
+
+  circles = circles
+    .enter()
+    .append("circle")
+    .attr("r", 3)
+    .attr("fill", "red")
+    .merge(circles);
+
+  circles
+  .attr("cx", function(d){ return xScale(d.created_at) })
+  .attr("cy", function(d){ return yScale(getTime(d.created_at)) })
+
+}
+
+function getTime(date){
+   return midnight +
+          (date.getHours() * 60 * 60 * 1000) +
+          (date.getMinutes() * 60 * 1000) +
+          (date.getSeconds() * 1000);
 }
 
 </script>
