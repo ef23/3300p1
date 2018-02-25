@@ -19,7 +19,8 @@ body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
 <script>
 var width = 1900;
 var height = 900;
-var padding = 100;
+var padding = 50;
+var paddingSides = 100;
 var paddingBottom = 200
 
 var vis = d3.select("body")
@@ -31,12 +32,12 @@ var svg = d3.selectAll("svg")
 
 /** The X-Axis code for scale and axis */
 
-var mindate = new Date(2015, 5, 1),
+var mindate = new Date(2015, 5, 15),
     maxdate = new Date(2018, 2, 1)
 
 var xScale = d3.scaleTime()
     .domain([mindate, maxdate])
-    .range([padding, width - padding * 2]);
+    .range([paddingSides, width - paddingSides]);
 
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
@@ -62,7 +63,7 @@ var yScale = d3.scaleTime()
 var yAxis = d3.axisLeft(yScale);
   svg.append("g")
   .attr("class", "yAxis")
-  .attr("transform", "translate(" + padding + ", 0)")
+  .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(yAxis
     .tickFormat(d3.timeFormat('%H:%M'))
     .tickSize(0)
