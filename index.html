@@ -31,8 +31,8 @@ var svg = d3.selectAll("svg")
 
 /** The X-Axis code for scale and axis */
 
-var mindate = new Date(2016, 0, 1),
-    maxdate = new Date(2018, 1, 1)
+var mindate = new Date(2015, 5, 1),
+    maxdate = new Date(2018, 2, 1)
 
 var xScale = d3.scaleTime()
     .domain([mindate, maxdate])
@@ -43,16 +43,9 @@ var xAxis = d3.axisBottom(xScale);
   .attr("class", "xAxis")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(xAxis
-    .tickFormat(d3.timeFormat('%b')))
-
- vis.selectAll(".xAxis text")
-  .attr("transform", function(d) {
-    return "translate("
-            + this.getBBox().height*-2 + ","
-            + (this.getBBox().height + 20)
-            + ")rotate(-45)";
-    })
-  .attr("font-size", 17)
+    .tickFormat(d3.timeFormat('%b'))
+    .tickSize(0))
+  .selectAll("text").remove()
 
 /** The Y-Axis code for scale and axis */
 
@@ -101,27 +94,35 @@ function callback(data) {
   drawLines();
 }
 
-var inaugrationDay = new Date(2017, 0, 21);
+var campaignStartDay = new Date(2015, 5, 15)
 var electionDay = new Date(2016, 10, 8)
+var inaugrationDay = new Date(2017, 0, 21);
+var y2016 = new Date(2016, 0, 1);
+var y2017 = new Date(2017, 0, 1);
+var y2018 = new Date(2018, 0, 1);
+
 
 function drawLines() {
-  var importantDates = [inaugrationDay, electionDay]
-  var names = ["Inaugaration", "2016 Election"]
+  var importantDates = [inaugrationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
+  var names = ["Inaugaration Day ", "2016 Pres Election", "Campaign Begins", "2016", "2017", "2018"]
+
   importantDates.forEach(function(d, i){
+    var isNotYear = isNaN(names[i]);
+
     svg.append("line")
     .attr("stroke-width", 2)
-    .attr("stroke", "grey")
+    .attr("stroke", isNotYear ? "grey" : "black")
     .attr("x1", xScale(d))
     .attr("x2", xScale(d))
     .attr("y1", height - paddingBottom)
-    .attr("y2", padding)
+    .attr("y2", isNotYear ? padding : height - paddingBottom + 10)
 
     svg.append("text")
     .attr("x", xScale(d))
     .attr("y", height - paddingBottom)
-    // .attr("text-anchor", "middle")
+    .attr("font-size", isNotYear ? 14 : 20)
     .text(names[i])
-    .attr("transform", "rotate(-90," + + xScale(d) + "," + (height - paddingBottom) + ")translate(-100,5)");
+    .attr("transform", "rotate(-" + (isNotYear ? 90 : 45) + "," + + xScale(d) + "," + (height - paddingBottom) + ")translate(" + (isNotYear ? -125.5 : -60) + "," + (isNotYear ? 2.5 : 15) +  ")");
 
   })
 }
