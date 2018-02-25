@@ -61,10 +61,12 @@ midnight.setHours(0, 0, 0, 0);
 midnight = midnight.getTime();
 var dayInMill = 86400000
 
-var yScale = d3.scaleTime()
-    .domain([midnight, midnight + dayInMill])
-    .nice(d3.timeDay, 1)
-    .range([padding, height - padding]);
+var yScale;
+
+yScale = d3.scaleTime()
+  .domain([midnight, midnight + dayInMill - 1])
+  .nice(d3.timeDay, 1)
+  .rangeRound([padding, height - padding]);
 
 var yAxis = d3.axisLeft(yScale);
   svg.append("g")
@@ -84,17 +86,10 @@ function callback(data) {
   rawData = data;
   // fix date
   rawData.forEach(function(d) {
-    var date = cvtToEST(d.created_at);
-    d.created_at = date;
+    var date = d.created_at;
+    d.created_at = new Date(date);
   })
   drawCircles();
-}
-
-function cvtToEST(date){
-    offset = -5.0
-    gmt = new Date(date);
-    est = new Date(gmt.getTime() + (3600000*offset));
-    return est;
 }
 
 function drawCircles(){
