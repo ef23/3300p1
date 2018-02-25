@@ -1,21 +1,37 @@
 <html>
+
 <head>
 <title>INFO 3300 - Data-driven Web Applications</title>
-
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
-
-
-<svg height="600" width="900"></svg>
+<h1 class="text-center"> Trump Twitter Analysis </h1>
+<svg height="900" width="1800"></svg>
 
 <script>
 
 var rawData;
 
-d3.json("data.csv", callback);
+d3.json("data.json", callback);
 
+function callback(data) {
+  rawData = data;
+  newData = []
+  rawData.map(function(d, i) {
+    if (i == 0){
+    console.log(d)
+    cvtToEST(d.created_at))
+    }
+  })
+}
 
+function cvtToEST(date){
+    offset = -5.0
+    gmt = new Date(date);
+    est = new Date(gmt.getTime() + (3600000*offset));
+    return est;
+}
 
 </script>
 
