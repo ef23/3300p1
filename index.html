@@ -9,8 +9,7 @@
 
 <style>
 h1 { font-family: 'VT323', monospace; font-size: 70px; color: rgb(8,160,233)}
-body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color: rgb(232,245,253)}
-svg { border: solid #ccc 1px; }
+body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
 </style>
 
 </head>
@@ -98,8 +97,9 @@ function drawCircles(){
   circles = circles
     .enter()
     .append("circle")
-    .attr("r", 3)
-    .attr("fill", "red")
+    .attr("r", 5)
+		.attr("opacity", 0.4)
+    .attr("fill", "rgb(0,132,180)")
     .merge(circles);
 
   circles
