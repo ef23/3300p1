@@ -7,22 +7,77 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <h1 class="text-center"> Trump Twitter Analysis </h1>
-<svg height="900" width="1800"></svg>
 
 <script>
+var width = 1900;
+var height = 900;
+var paddingLeft = 100;
+var padding = 100;
 
+var vis = d3.select("body")
+.append("svg")
+.attr("width", width)
+.attr("height", height);
+
+var svg = d3.selectAll("svg")
+
+/** The X-Axis code for scale and axis */
+
+var mindate = new Date(2017, 0, 1),
+    maxdate = new Date(2018, 1, 1)
+
+var xScale = d3.scaleTime()
+    .domain([mindate, maxdate])
+    .range([padding, width - padding * 2]);
+
+var xAxis = d3.axisBottom(xScale);
+  svg.append("g")
+  .attr("class", "xAxis")
+  .attr("transform", "translate(0," + (height - padding) + ")").call(xAxis)
+
+ vis.selectAll(".xAxis text")
+  .attr("transform", function(d) {
+    return "translate("
+            + this.getBBox().height*-2 + ","
+            + (this.getBBox().height + 20)
+            + ")rotate(-45)";
+    })
+  .attr("font-size", 17)
+
+/** The Y-Axis code for scale and axis */
+
+var midnight = new Date();
+midnight.setHours(0, 0, 0, 0);
+midnight = midnight.getTime();
+var dayInMill = 86400000
+
+var yScale = d3.scaleLinear()
+    .domain([midnight, midnight + dayInMill])
+    .range([padding, height - padding * 2]);
+
+var yAxis = d3.axisLeft(yScale);
+  svg.append("g")
+  .attr("class", "yAxis")
+  .attr("transform", "translate(" + (padding) + "," + padding + ")")
+  .call(yAxis
+    .tickFormat(d3.timeFormat('%H:%M'))
+    .tickSize(0)
+    .tickPadding(8)
+  )
+
+
+
+/** The code for reading and formatting data */
 var rawData;
 
 d3.json("data.json", callback);
 
 function callback(data) {
   rawData = data;
-  newData = []
-  rawData.map(function(d, i) {
-    if (i == 0){
-    console.log(d)
-    cvtToEST(d.created_at))
-    }
+  // fix date
+  rawData.forEach(function(d) {
+    var date = cvtToEST(d.created_at);
+    d.created_at = date;
   })
 }
 
