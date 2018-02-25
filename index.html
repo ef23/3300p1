@@ -20,6 +20,7 @@ body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
 var width = 1900;
 var height = 900;
 var padding = 100;
+var paddingBottom = 200
 
 var vis = d3.select("body")
 .append("svg")
@@ -40,7 +41,7 @@ var xScale = d3.scaleTime()
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
   .attr("class", "xAxis")
-  .attr("transform", "translate(0," + (height - padding) + ")")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(xAxis
     .tickFormat(d3.timeFormat('%b')))
 
@@ -63,7 +64,7 @@ var dayInMill = 86400000
 var yScale = d3.scaleTime()
   .domain([midnight, midnight + dayInMill - 1])
   .nice(d3.timeDay, 1)
-  .rangeRound([padding, height - padding]);
+  .rangeRound([padding, height - paddingBottom]);
 
 var yAxis = d3.axisLeft(yScale);
   svg.append("g")
@@ -76,6 +77,8 @@ var yAxis = d3.axisLeft(yScale);
 
 /** The code for reading and formatting data */
 var rawData;
+var dict = {};
+var sortedCounts = [];
 
 d3.json("data.json", callback);
 
@@ -86,10 +89,6 @@ function callback(data) {
     var date = d.created_at;
     d.created_at = new Date(date);
 
-    if (i < rawData.length && i > rawData.length - 500) {
-      console.log(d.created_at)
-    }
-
     if (i != 0) {
       var thisTime = d.created_at.getTime();
       var prevTime = rawData[i-1].created_at.getTime();
@@ -97,21 +96,46 @@ function callback(data) {
     }
   })
 
-  // drawSecondGraph();
-
+  getTopIntervals();
   drawCircles();
+  drawLines();
+}
+
+var inaugrationDay = new Date(2017, 0, 21);
+var electionDay = new Date(2016, 10, 8)
+
+function drawLines() {
+  var importantDates = [inaugrationDay, electionDay]
+  var names = ["Inaugaration", "2016 Election"]
+  importantDates.forEach(function(d, i){
+    svg.append("line")
+    .attr("stroke-width", 2)
+    .attr("stroke", "grey")
+    .attr("x1", xScale(d))
+    .attr("x2", xScale(d))
+    .attr("y1", height - paddingBottom)
+    .attr("y2", padding)
+
+    svg.append("text")
+    .attr("x", xScale(d))
+    .attr("y", height - paddingBottom)
+    // .attr("text-anchor", "middle")
+    .text(names[i])
+    .attr("transform", "rotate(-90," + + xScale(d) + "," + (height - paddingBottom) + ")translate(-100,5)");
+
+  })
 }
 
 function drawCircles(){
   var circles = svg.selectAll("circle").data(rawData);
 
   circles = circles
-    .enter()
-    .append("circle")
-    .attr("r", 5)
-		.attr("opacity", 0.4)
-    .attr("fill", "rgb(0,132,180)")
-    .merge(circles);
+  .enter()
+  .append("circle")
+  .attr("r", 5)
+	.attr("opacity", 0.4)
+  .attr("fill", "rgb(0,132,180)")
+  .merge(circles);
 
   circles
   .attr("cx", function(d, i ){ return xScale(d.created_at) })
@@ -126,6 +150,37 @@ function getTime(date){
           (date.getSeconds() * 1000);
 }
 
+function getTopIntervals(){
+  // only get tweets within 3 min of each other
+  filteredData = rawData.filter(function(d){
+    return d.next_tweet_interval < dayInMill/480;
+  });
+
+  // convert to seconds
+  filteredData.forEach(function(d) {
+    d.next_tweet_interval = d.next_tweet_interval/1000;
+
+    // aggregate counts/day
+  if(dict[d.created_at.toDateString()]) {
+    var oldResult = dict[d.created_at.toDateString()];
+    dict[d.created_at.toDateString()][1].push(d)
+    var newResult = [oldResult[0]+1, dict[d.created_at.toDateString()][1]]
+    dict[d.created_at.toDateString()] = newResult;
+  } else {
+    dict[d.created_at.toDateString()] = [1, [d]]
+  }
+  })
+
+  for (var count in dict) {
+    sortedCounts.push([count, dict[count]]);
+  }
+
+  sortedCounts.sort(function(x, y) {
+    return y[1][0] - x[1][0];
+  });
+
+  sortedCounts = sortedCounts.slice(0, 9);
+}
 
 /** time interval lol */
 // var vis = d3.select("body")
@@ -148,7 +203,7 @@ function getTime(date){
 // var xAxis = d3.axisBottom(xScale);
 //   svg2.append("g")
 //   .attr("class", "xAxis")
-//   .attr("transform", "translate(0," + (height - padding) + ")")
+//   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
 //   .call(xAxis
 //     .tickFormat(d3.timeFormat('%b')))
 
@@ -166,29 +221,6 @@ function getTime(date){
 // var dict = {}
 
 // function drawSecondGraph() {
-//   filteredData = rawData.filter(function(d){
-//     return d.next_tweet_interval < dayInMill/480;
-//   });
-//   filteredData.forEach(function(d) {
-//     d.next_tweet_interval = d.next_tweet_interval/1000;
-
-//     // aggregate counts/day
-//     dict[d.created_at.toDateString()] =
-//         dict[d.created_at.toDateString()] === undefined ?
-//         1 : dict[d.created_at.toDateString()]+1
-//   })
-
-//   var sortedCounts = [];
-//   for (var count in dict) {
-//     sortedCounts.push([count, dict[count]]);
-//   }
-
-//   sortedCounts.sort(function(x, y) {
-//     return y[1] - x[1];
-//   });
-
-//   console.log(sortedCounts)
-
 //   var yExtent = d3.extent(filteredData, function(d) { return d.next_tweet_interval })
 //   var yScale = d3.scaleLinear()
 //     .domain(yExtent)
