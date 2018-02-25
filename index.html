@@ -33,7 +33,9 @@ var xScale = d3.scaleTime()
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
   .attr("class", "xAxis")
-  .attr("transform", "translate(0," + (height - padding) + ")").call(xAxis)
+  .attr("transform", "translate(0," + (height - padding) + ")")
+  .call(xAxis
+    .tickFormat(d3.timeFormat('%b')))
 
  vis.selectAll(".xAxis text")
   .attr("transform", function(d) {
@@ -62,8 +64,7 @@ var yAxis = d3.axisLeft(yScale);
   .call(yAxis
     .tickFormat(d3.timeFormat('%H:%M'))
     .tickSize(0)
-    .tickPadding(8)
-  )
+    .tickPadding(8))
 
 
 
