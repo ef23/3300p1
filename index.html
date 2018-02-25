@@ -31,7 +31,7 @@ var svg = d3.selectAll("svg")
 
 /** The X-Axis code for scale and axis */
 
-var mindate = new Date(2017, 0, 1),
+var mindate = new Date(2016, 0, 1),
     maxdate = new Date(2018, 1, 1)
 
 var xScale = d3.scaleTime()
@@ -61,9 +61,7 @@ midnight.setHours(0, 0, 0, 0);
 midnight = midnight.getTime();
 var dayInMill = 86400000
 
-var yScale;
-
-yScale = d3.scaleTime()
+var yScale = d3.scaleTime()
   .domain([midnight, midnight + dayInMill - 1])
   .nice(d3.timeDay, 1)
   .rangeRound([padding, height - padding]);
@@ -85,10 +83,19 @@ d3.json("data.json", callback);
 function callback(data) {
   rawData = data;
   // fix date
-  rawData.forEach(function(d) {
+  rawData.forEach(function(d, i) {
     var date = d.created_at;
     d.created_at = new Date(date);
+
+    if (i != 0) {
+      var thisTime = d.created_at.getTime();
+      var prevTime = rawData[i-1].created_at.getTime();
+      d.next_tweet_interval = prevTime - thisTime;
+    }
   })
+
+  // drawSecondGraph();
+
   drawCircles();
 }
 
@@ -115,6 +122,95 @@ function getTime(date){
           (date.getSeconds() * 1000);
 }
 
+
+/** time interval lol */
+var vis = d3.select("body")
+.append("svg")
+.attr("id", "svg2")
+.attr("width", width)
+.attr("height", height);
+
+var svg2 = d3.select("#svg2")
+
+/** The X-Axis code for scale and axis */
+
+var mindate = new Date(2017, 0, 1),
+    maxdate = new Date(2018, 1, 1)
+
+var xScale = d3.scaleTime()
+    .domain([mindate, maxdate])
+    .range([padding, width - padding * 2]);
+
+var xAxis = d3.axisBottom(xScale);
+  svg2.append("g")
+  .attr("class", "xAxis")
+  .attr("transform", "translate(0," + (height - padding) + ")")
+  .call(xAxis
+    .tickFormat(d3.timeFormat('%b')))
+
+ vis.selectAll(".xAxis text")
+  .attr("transform", function(d) {
+    return "translate("
+            + this.getBBox().height*-2 + ","
+            + (this.getBBox().height + 20)
+            + ")rotate(-45)";
+    })
+  .attr("font-size", 17)
+
+/** The Y-Axis code for scale and axis */
+// var filteredData;
+// var dict = {}
+
+// function drawSecondGraph() {
+//   filteredData = rawData.filter(function(d){
+//     return d.next_tweet_interval < dayInMill/480;
+//   });
+//   filteredData.forEach(function(d) {
+//     d.next_tweet_interval = d.next_tweet_interval/1000;
+
+//     // aggregate counts/day
+//     dict[d.created_at.toDateString()] =
+//         dict[d.created_at.toDateString()] === undefined ?
+//         1 : dict[d.created_at.toDateString()]+1
+//   })
+
+//   var sortedCounts = [];
+//   for (var count in dict) {
+//     sortedCounts.push([count, dict[count]]);
+//   }
+
+//   sortedCounts.sort(function(x, y) {
+//     return y[1] - x[1];
+//   });
+
+//   console.log(sortedCounts)
+
+//   var yExtent = d3.extent(filteredData, function(d) { return d.next_tweet_interval })
+//   var yScale = d3.scaleLinear()
+//     .domain(yExtent)
+//     .rangeRound([padding, height - padding]);
+
+//   var yAxis = d3.axisLeft(yScale);
+//     svg2.append("g")
+//     .attr("class", "yAxis")
+//     .attr("transform", "translate(" + padding + ", 0)")
+//     .call(yAxis
+//       .tickSize(0)
+//       .tickPadding(8))
+
+//   var circles = svg2.selectAll("circle").data(filteredData);
+
+//   circles = circles
+//     .enter()
+//     .append("circle")
+//     .attr("r", 3)
+//     .attr("fill", "red")
+//     .merge(circles);
+
+//   circles
+//   .attr("cx", function(d){ return xScale(d.created_at) })
+//   .attr("cy", function(d){ return yScale(d.next_tweet_interval) })
+// }
 </script>
 </body>
 </html>
