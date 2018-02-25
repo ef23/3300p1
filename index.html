@@ -14,17 +14,17 @@ body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
 
 </head>
 <body>
-<h1 class="text-center"> Twittering Day: Trump Twitter Analysis </h1>
+<h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
 
 <script>
 var width = 1900;
 var height = 900;
 var padding = 50;
 var paddingSides = 100;
-var paddingBottom = 200
+var paddingBottom = 150
 
 var vis = d3.select("body")
-.append("svg")
+vis.append("svg")
 .attr("width", width)
 .attr("height", height);
 
@@ -183,6 +183,8 @@ function getTopIntervals(){
 
   sortedCounts = sortedCounts.slice(0, 9);
 }
+
+vis.append("h1").attr("class", "text-center").text("Rants before and after.")
 
 /** time interval lol */
 // var vis = d3.select("body")
