@@ -1,12 +1,21 @@
 <html>
 
 <head>
-<title>INFO 3300 - Data-driven Web Applications</title>
+<title>Trump Twitter Analysis</title>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+
+<style>
+h1 { font-family: 'VT323', monospace; font-size: 70px; color: rgb(8,160,233)}
+body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color: rgb(232,245,253)}
+svg { border: solid #ccc 1px; }
+</style>
+
 </head>
-<h1 class="text-center"> Trump Twitter Analysis </h1>
+<body>
+<h1 class="text-center"> Twittering Day: Trump Twitter Analysis </h1>
 
 <script>
 var width = 1900;
@@ -90,6 +99,5 @@ function cvtToEST(date){
 }
 
 </script>
-
 </body>
 </html>
