@@ -86,6 +86,10 @@ function callback(data) {
     var date = d.created_at;
     d.created_at = new Date(date);
 
+    if (i < rawData.length && i > rawData.length - 500) {
+      console.log(d.created_at)
+    }
+
     if (i != 0) {
       var thisTime = d.created_at.getTime();
       var prevTime = rawData[i-1].created_at.getTime();
@@ -110,7 +114,7 @@ function drawCircles(){
     .merge(circles);
 
   circles
-  .attr("cx", function(d){ return xScale(d.created_at) })
+  .attr("cx", function(d, i ){ return xScale(d.created_at) })
   .attr("cy", function(d){ return yScale(getTime(d.created_at)) })
 
 }
@@ -124,38 +128,38 @@ function getTime(date){
 
 
 /** time interval lol */
-var vis = d3.select("body")
-.append("svg")
-.attr("id", "svg2")
-.attr("width", width)
-.attr("height", height);
+// var vis = d3.select("body")
+// .append("svg")
+// .attr("id", "svg2")
+// .attr("width", width)
+// .attr("height", height);
 
-var svg2 = d3.select("#svg2")
+// var svg2 = d3.select("#svg2")
 
-/** The X-Axis code for scale and axis */
+// /** The X-Axis code for scale and axis */
 
-var mindate = new Date(2017, 0, 1),
-    maxdate = new Date(2018, 1, 1)
+// var mindate = new Date(2017, 0, 1),
+//     maxdate = new Date(2018, 1, 1)
 
-var xScale = d3.scaleTime()
-    .domain([mindate, maxdate])
-    .range([padding, width - padding * 2]);
+// var xScale = d3.scaleTime()
+//     .domain([mindate, maxdate])
+//     .range([padding, width - padding * 2]);
 
-var xAxis = d3.axisBottom(xScale);
-  svg2.append("g")
-  .attr("class", "xAxis")
-  .attr("transform", "translate(0," + (height - padding) + ")")
-  .call(xAxis
-    .tickFormat(d3.timeFormat('%b')))
+// var xAxis = d3.axisBottom(xScale);
+//   svg2.append("g")
+//   .attr("class", "xAxis")
+//   .attr("transform", "translate(0," + (height - padding) + ")")
+//   .call(xAxis
+//     .tickFormat(d3.timeFormat('%b')))
 
- vis.selectAll(".xAxis text")
-  .attr("transform", function(d) {
-    return "translate("
-            + this.getBBox().height*-2 + ","
-            + (this.getBBox().height + 20)
-            + ")rotate(-45)";
-    })
-  .attr("font-size", 17)
+//  vis.selectAll(".xAxis text")
+//   .attr("transform", function(d) {
+//     return "translate("
+//             + this.getBBox().height*-2 + ","
+//             + (this.getBBox().height + 20)
+//             + ")rotate(-45)";
+//     })
+//   .attr("font-size", 17)
 
 /** The Y-Axis code for scale and axis */
 // var filteredData;
