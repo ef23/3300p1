@@ -83,7 +83,7 @@ var y2017 = new Date(2017, 0, 1);
 var y2018 = new Date(2018, 0, 1);
 var oct19 = new Date(2016, 9, 19)
 
-function drawLines(svg, xScale) {
+function drawLines(svg, height, paddingBottom, xScale, scale) {
   var importantDates = [inaugrationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
   var names = ["Inaugaration Day ", "2016 Pres Election", "Campaign Begins", "2016", "2017", "2018"]
 
@@ -101,28 +101,23 @@ function drawLines(svg, xScale) {
     svg.append("text")
     .attr("x", xScale(d))
     .attr("y", height - paddingBottom)
-    .attr("font-size", isNotYear ? 14 : 20)
+    .attr("font-size", (isNotYear ? 14 : 20) * scale)
     .text(names[i])
-    .attr("transform", "rotate(-" + (isNotYear ? 90 : 45) + "," + + xScale(d) + "," + (height - paddingBottom) + ")translate(" + (isNotYear ? -125.5 : -60) + "," + (isNotYear ? 2.5 : 15) +  ")");
+    .attr("transform", "rotate(-" + (isNotYear ? 90 : 45) + "," + + xScale(d) + "," + (height - paddingBottom) + ")translate(" + (isNotYear ? -125.5 : -60)*scale + "," + (isNotYear ? 2.5 : 15)*scale +  ")");
 
   })
 }
 
-function drawCircles(svg, data){
-  var circles = svg.selectAll("circle").data(data);
+function drawCircles(svgV, xScale, yScale, data, scale){
+  data.forEach(function(d){
+    svgV.append("circle")
+    .attr("r", 5*scale)
+    .attr("opacity", 0.4)
+    .attr("fill", "rgb(0,132,180)")
+    .attr("cx", xScale(d.created_at))
+    .attr("cy", yScale(getTime(d.created_at)))
 
-  circles = circles
-  .enter()
-  .append("circle")
-  .attr("r", 5)
-	.attr("opacity", 0.4)
-  .attr("fill", "rgb(0,132,180)")
-  .merge(circles);
-
-  circles
-  .attr("cx", function(d, i ){ return xScale(d.created_at) })
-  .attr("cy", function(d){ return yScale(getTime(d.created_at)) })
-
+  })
 }
 
 function getTime(date){
@@ -148,8 +143,8 @@ function callback(data) {
     }
   })
 
-  drawCircles(svg, rawData);
-  drawLines(svg, xScale);
+  drawCircles(svg, xScale, yScale, rawData, 1);
+  drawLines(svg, height, paddingBottom, xScale, 1);
   createSmallGraphs();
 }
 
@@ -178,13 +173,14 @@ function generateGraph(arr){
   var lpaddingSides = 50;
   var lpaddingBottom = 100
 
-  arr.forEach(function(data) {
+  arr.forEach(function(data, i) {
     var body = d3.select("body")
     body.append("svg")
+    .attr("id", "svg" + i)
     .attr("width", lwidth)
     .attr("height", lheight);
 
-    var svgLoop = d3.selectAll("svg")
+    var svgLoop = d3.select("#svg" + i)
 
     var xLoopScale = d3.scaleTime()
         .domain([mindate, maxdate])
@@ -193,7 +189,7 @@ function generateGraph(arr){
     var xLoopAxis = d3.axisBottom(xLoopScale);
       svgLoop.append("g")
       .attr("class", "xLoopAxis")
-      .attr("transform", "translate(0," + (lheight - paddingBottom) + ")")
+      .attr("transform", "translate(0," + (lheight - lpaddingBottom) + ")")
       .call(xLoopAxis
         .tickFormat(d3.timeFormat('%b'))
         .tickSize(0))
@@ -212,8 +208,8 @@ function generateGraph(arr){
         .tickFormat(d3.timeFormat('%H:%M'))
         .tickSize(0)
         .tickPadding(8))
-    drawCircles(svgLoop, data);
-    drawLines(svgLoop, xLoopScale);
+    drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6);
+    drawLines(svgLoop, lheight, lpaddingBottom, xLoopScale, .5);
   })
 
 }
