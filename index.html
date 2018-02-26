@@ -151,6 +151,7 @@ function callback(data) {
 /******************************** END GRAPH 1 ****************************/
 
 var keywords = ["cnn", "fox", "(nytimes|newyorktimes)", "washingtonpost", "fakenews","(dems|democrats|dnc)","fbi", "russia"]
+var titles = ["CNN", "FOX", "New York Times", "Washington Post", "Fake News", "Democrats", "FBI", "Russia"]
 
 function createSmallGraphs(){
   var lowercased = rawData.map(function(d){
@@ -168,7 +169,7 @@ function createSmallGraphs(){
 
 function generateGraph(arr){
   var lwidth = 950
-  var lheight = 450
+  var lheight = 475
   var lpadding = 25;
   var lpaddingSides = 50;
   var lpaddingBottom = 100
@@ -210,6 +211,11 @@ function generateGraph(arr){
         .tickPadding(8))
     drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6);
     drawLines(svgLoop, lheight, lpaddingBottom, xLoopScale, .5);
+    svgLoop.append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", lwidth/2)
+    .attr("y", 10)
+    .text(titles[i]);
   })
 
 }
