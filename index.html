@@ -17,6 +17,8 @@ body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
 <h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
 
 <script>
+/** The code for reading and formatting data */
+
 var width = 1900;
 var height = 900;
 var padding = 50;
@@ -29,6 +31,10 @@ vis.append("svg")
 .attr("height", height);
 
 var svg = d3.selectAll("svg")
+
+var rawData;
+var dict = {};
+var sortedCounts = [];
 
 /** The X-Axis code for scale and axis */
 
@@ -69,41 +75,15 @@ var yAxis = d3.axisLeft(yScale);
     .tickSize(0)
     .tickPadding(8))
 
-/** The code for reading and formatting data */
-var rawData;
-var dict = {};
-var sortedCounts = [];
-
-d3.json("data.json", callback);
-
-function callback(data) {
-  rawData = data;
-  // fix date
-  rawData.forEach(function(d, i) {
-    var date = d.created_at;
-    d.created_at = new Date(date);
-
-    if (i != 0) {
-      var thisTime = d.created_at.getTime();
-      var prevTime = rawData[i-1].created_at.getTime();
-      d.next_tweet_interval = prevTime - thisTime;
-    }
-  })
-
-  getTopIntervals();
-  drawCircles();
-  drawLines();
-}
-
 var campaignStartDay = new Date(2015, 5, 15)
 var electionDay = new Date(2016, 10, 8)
 var inaugrationDay = new Date(2017, 0, 21);
 var y2016 = new Date(2016, 0, 1);
 var y2017 = new Date(2017, 0, 1);
 var y2018 = new Date(2018, 0, 1);
+var oct19 = new Date(2016, 9, 19)
 
-
-function drawLines() {
+function drawLines(svg, xScale) {
   var importantDates = [inaugrationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
   var names = ["Inaugaration Day ", "2016 Pres Election", "Campaign Begins", "2016", "2017", "2018"]
 
@@ -128,8 +108,8 @@ function drawLines() {
   })
 }
 
-function drawCircles(){
-  var circles = svg.selectAll("circle").data(rawData);
+function drawCircles(svg, data){
+  var circles = svg.selectAll("circle").data(data);
 
   circles = circles
   .enter()
@@ -152,105 +132,92 @@ function getTime(date){
           (date.getSeconds() * 1000);
 }
 
-function getTopIntervals(){
-  // only get tweets within 3 min of each other
-  filteredData = rawData.filter(function(d){
-    return d.next_tweet_interval < dayInMill/480;
-  });
+d3.json("data.json", callback);
 
-  // convert to seconds
-  filteredData.forEach(function(d) {
-    d.next_tweet_interval = d.next_tweet_interval/1000;
+function callback(data) {
+  rawData = data;
+  // fix date
+  rawData.forEach(function(d, i) {
+    var date = d.created_at;
+    d.created_at = new Date(date);
 
-    // aggregate counts/day
-  if(dict[d.created_at.toDateString()]) {
-    var oldResult = dict[d.created_at.toDateString()];
-    dict[d.created_at.toDateString()][1].push(d)
-    var newResult = [oldResult[0]+1, dict[d.created_at.toDateString()][1]]
-    dict[d.created_at.toDateString()] = newResult;
-  } else {
-    dict[d.created_at.toDateString()] = [1, [d]]
-  }
+    if (i != 0) {
+      var thisTime = d.created_at.getTime();
+      var prevTime = rawData[i-1].created_at.getTime();
+      d.next_tweet_interval = prevTime - thisTime;
+    }
   })
 
-  for (var count in dict) {
-    sortedCounts.push([count, dict[count]]);
-  }
-
-  sortedCounts.sort(function(x, y) {
-    return y[1][0] - x[1][0];
-  });
-
-  sortedCounts = sortedCounts.slice(0, 9);
+  drawCircles(svg, rawData);
+  drawLines(svg, xScale);
+  createSmallGraphs();
 }
 
-vis.append("h1").attr("class", "text-center").text("Rants before and after.")
+/******************************** END GRAPH 1 ****************************/
 
-/** time interval lol */
-// var vis = d3.select("body")
-// .append("svg")
-// .attr("id", "svg2")
-// .attr("width", width)
-// .attr("height", height);
+var keywords = ["cnn", "fox", "(nytimes|newyorktimes)", "washingtonpost", "fakenews","(dems|democrats|dnc)","fbi", "russia"]
 
-// var svg2 = d3.select("#svg2")
+function createSmallGraphs(){
+  var lowercased = rawData.map(function(d){
+    d.text = d.text.replace(/\s/g,'').toLowerCase()
+    return d;
+  })
+  var filtered = []
+  for (var keyregex in keywords) {
+    filtered.push(lowercased.filter(function(d) {
+      return d.text.indexOf(keyregex) != -1;
+    }))
+  }
+  generateGraph(filtered)
+}
 
-// /** The X-Axis code for scale and axis */
+function generateGraph(arr){
+  var lwidth = 950
+  var lheight = 450
+  var lpadding = 25;
+  var lpaddingSides = 50;
+  var lpaddingBottom = 100
 
-// var mindate = new Date(2017, 0, 1),
-//     maxdate = new Date(2018, 1, 1)
+  arr.forEach(function(data) {
+    var body = d3.select("body")
+    body.append("svg")
+    .attr("width", lwidth)
+    .attr("height", lheight);
 
-// var xScale = d3.scaleTime()
-//     .domain([mindate, maxdate])
-//     .range([padding, width - padding * 2]);
+    var svgLoop = d3.selectAll("svg")
 
-// var xAxis = d3.axisBottom(xScale);
-//   svg2.append("g")
-//   .attr("class", "xAxis")
-//   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
-//   .call(xAxis
-//     .tickFormat(d3.timeFormat('%b')))
+    var xLoopScale = d3.scaleTime()
+        .domain([mindate, maxdate])
+        .range([lpaddingSides, lwidth - lpaddingSides]);
 
-//  vis.selectAll(".xAxis text")
-//   .attr("transform", function(d) {
-//     return "translate("
-//             + this.getBBox().height*-2 + ","
-//             + (this.getBBox().height + 20)
-//             + ")rotate(-45)";
-//     })
-//   .attr("font-size", 17)
+    var xLoopAxis = d3.axisBottom(xLoopScale);
+      svgLoop.append("g")
+      .attr("class", "xLoopAxis")
+      .attr("transform", "translate(0," + (lheight - paddingBottom) + ")")
+      .call(xLoopAxis
+        .tickFormat(d3.timeFormat('%b'))
+        .tickSize(0))
+      .selectAll("text").remove()
 
-/** The Y-Axis code for scale and axis */
-// var filteredData;
-// var dict = {}
+    var yLoopScale = d3.scaleTime()
+      .domain([midnight, midnight + dayInMill - 1])
+      .nice(d3.timeDay, 1)
+      .rangeRound([lpadding, lheight - lpaddingBottom]);
 
-// function drawSecondGraph() {
-//   var yExtent = d3.extent(filteredData, function(d) { return d.next_tweet_interval })
-//   var yScale = d3.scaleLinear()
-//     .domain(yExtent)
-//     .rangeRound([padding, height - padding]);
+    var yLoopAxis = d3.axisLeft(yLoopScale);
+      svgLoop.append("g")
+      .attr("class", "yLoopAxis")
+      .attr("transform", "translate(" + lpaddingSides + ", 0)")
+      .call(yLoopAxis
+        .tickFormat(d3.timeFormat('%H:%M'))
+        .tickSize(0)
+        .tickPadding(8))
+    drawCircles(svgLoop, data);
+    drawLines(svgLoop, xLoopScale);
+  })
 
-//   var yAxis = d3.axisLeft(yScale);
-//     svg2.append("g")
-//     .attr("class", "yAxis")
-//     .attr("transform", "translate(" + padding + ", 0)")
-//     .call(yAxis
-//       .tickSize(0)
-//       .tickPadding(8))
+}
 
-//   var circles = svg2.selectAll("circle").data(filteredData);
-
-//   circles = circles
-//     .enter()
-//     .append("circle")
-//     .attr("r", 3)
-//     .attr("fill", "red")
-//     .merge(circles);
-
-//   circles
-//   .attr("cx", function(d){ return xScale(d.created_at) })
-//   .attr("cy", function(d){ return yScale(d.next_tweet_interval) })
-// }
 </script>
 </body>
 </html>
