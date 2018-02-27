@@ -35,6 +35,8 @@ var svg = d3.selectAll("svg")
 var rawData;
 var dict = {};
 var sortedCounts = [];
+var beforeElectionCount = 0;
+var afterElectionCount = 0;
 
 /** The X-Axis code for scale and axis */
 
@@ -108,12 +110,19 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
   })
 }
 
-function drawCircles(svgV, xScale, yScale, data, scale){
+function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
   data.forEach(function(d){
+    var opacity = 0.4;
+    var color = "rgb(0,132,180)"
+    if (isSmall){
+      opacity = d.match ? 0.6 : 0.2
+      color = d.match ? "#f1c40f" : color
+    }
+
     svgV.append("circle")
     .attr("r", 5*scale)
-    .attr("opacity", 0.4)
-    .attr("fill", "rgb(0,132,180)")
+    .attr("opacity", opacity)
+    .attr("fill", color)
     .attr("cx", xScale(d.created_at))
     .attr("cy", yScale(getTime(d.created_at)))
 
@@ -136,6 +145,12 @@ function callback(data) {
     var date = d.created_at;
     d.created_at = new Date(date);
 
+    if (d.created_at < new Date(2016, 10, 8)) {
+      beforeElectionCount++;
+    } else {
+      afterElectionCount++;
+    }
+
     if (i != 0) {
       var thisTime = d.created_at.getTime();
       var prevTime = rawData[i-1].created_at.getTime();
@@ -143,25 +158,33 @@ function callback(data) {
     }
   })
 
-  drawCircles(svg, xScale, yScale, rawData, 1);
+  drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 1);
   createSmallGraphs();
 }
 
 /******************************** END GRAPH 1 ****************************/
 
-var keywords = ["cnn", "fox", "(nytimes|newyorktimes)", "washingtonpost", "fakenews","(dems|democrats|dnc)","fbi", "russia"]
-var titles = ["CNN", "FOX", "New York Times", "Washington Post", "Fake News", "Democrats", "FBI", "Russia"]
+/** generates the regex that requires ALL words to be matched */
+function generateRegex(str){
+  return "(?=.*" + str + ")"
+}
+
+function fakenewsReg(str) {
+  return "(?=.*fakenews)" + generateRegex(str)
+}
+var keywords = [fakenewsReg("cnn"), fakenewsReg("fox"), "^(?!.*fake news).*fox.*$", fakenewsReg("(nytimes|new york times)"), fakenewsReg("washington post"), fakenewsReg("(nbc|msnbc)"), "(dems|democrats|dnc)","fbi", "russia"]
+var titles = ["CNN", "FOX and Fake News", "FOX without Fake News", "New York Times", "Washington Post", "NBC", "Democrats", "FBI", "Russia", ]
 
 function createSmallGraphs(){
   var lowercased = rawData.map(function(d){
-    d.text = d.text.replace(/\s/g,'').toLowerCase()
+    d.text = d.text.toLowerCase()
     return d;
   })
   var filtered = []
   for (var keyregex in keywords) {
     filtered.push(lowercased.filter(function(d) {
-      return d.text.indexOf(keyregex) != -1;
+      return d.text.indexOf(keyregex) !== -1
     }))
   }
   generateGraph(filtered)
@@ -209,7 +232,7 @@ function generateGraph(arr){
         .tickFormat(d3.timeFormat('%H:%M'))
         .tickSize(0)
         .tickPadding(8))
-    drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6);
+    drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6, true);
     drawLines(svgLoop, lheight, lpaddingBottom, xLoopScale, .5);
     svgLoop.append("text")
     .attr("text-anchor", "middle")
