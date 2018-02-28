@@ -10,10 +10,20 @@
 <style>
 h1 { font-family: 'VT323', monospace; font-size: 70px; color: rgb(8,160,233)}
 body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
+.parallax {
+    background-image: url("background.png");
+    height: 100%;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: -1;
+}
 </style>
 
 </head>
 <body>
+<div class="parallax" id="body">
 <h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
 
 <script>
@@ -39,12 +49,19 @@ var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150
 
-var vis = d3.select("body")
+var vis = d3.select("#body")
 vis.append("svg")
 .attr("width", width)
 .attr("height", height);
 
 var svg = d3.selectAll("svg")
+svg.append("rect")
+.attr("width", width-padding)
+.attr("height", height-padding)
+.attr("x", padding)
+.attr("y", padding)
+.attr("fill", "white");
+
 
 var rawData;
 var dict = {};
@@ -256,5 +273,6 @@ function generateGraph(arr){
 }
 
 </script>
+</div>
 </body>
 </html>
