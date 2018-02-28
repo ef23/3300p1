@@ -214,9 +214,7 @@ var monthAxis = d3.axisBottom(monthScale);
   .attr("class", "xAxis")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
-    .tickFormat(d3.timeFormat('%b'))
-    .tickSize(0))
-  .selectAll("text").remove()
+    .tickFormat(d3.timeFormat('%B')));
 
 /** The Y-Axis code for scale and axis */
 
@@ -224,24 +222,61 @@ var percentageScale = d3.scaleLinear()
   .domain([0,1])
   .rangeRound([height - paddingBottom, padding]);
 
-var yAxis = d3.axisLeft(percentageScale);
+var percentageAxis = d3.axisLeft(percentageScale);
   svg2.append("g")
   .attr("id", "#testAxis")
   .attr("transform", "translate(" + paddingSides + ", 0)")
-  .call(yAxis
+  .call(percentageAxis
+		.tickFormat(d3.format(".0%"))
     .tickSize(0)
     .tickPadding(8));
 
 
-
-
 /******************************** END GRAPH 2 ****************************/
 /********************************** GRAPH 3 ******************************/
+var graph3 = d3.select("body");
+graph3.append("svg")
+.attr("id","graph3")
+.attr("width", width)
+.attr("height", height);
 
+var svg3 = d3.select("#graph3");
+
+svg3.append("g")
+  .attr("class", "xAxis")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+    .tickFormat(d3.timeFormat('%B')));
+	
+svg3.append("g")
+  .attr("id", "#testAxis")
+  .attr("transform", "translate(" + paddingSides + ", 0)")
+  .call(percentageAxis
+    .tickSize(0)
+    .tickPadding(8));
 
 /******************************** END GRAPH 3 ****************************/
 /********************************** GRAPH 4 ******************************/
+var graph4 = d3.select("body");
+graph4.append("svg")
+.attr("id","graph4")
+.attr("width", width)
+.attr("height", height);
 
+var svg4 = d3.select("#graph4");
+
+svg4.append("g")
+  .attr("class", "xAxis")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+    .tickFormat(d3.timeFormat('%B')));
+	
+svg4.append("g")
+  .attr("id", "#testAxis")
+  .attr("transform", "translate(" + paddingSides + ", 0)")
+  .call(percentageAxis
+    .tickSize(0)
+    .tickPadding(8));
 
 
 /******************************** END GRAPH 4 ****************************/

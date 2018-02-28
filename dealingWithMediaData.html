@@ -89,11 +89,139 @@ function callback(data) {
 			notFake++;
 		}
 		
-		// label by month
+		// label by month and year
 		var m = d.created_at.getMonth();
-		d.month = m;
+		var y = d.created_at.getFullYear();
+		if (y!=2015) {
+			m = m + (12*(y-2015));
+		} 
+		d.month = m - 5;
 })
+
+outletsByMonth(rawData); //month_outlet
+fakeness(rawData); // month_fake 
+fakeOutlets(rawData); //month_fake_outlets
+//notFakeOutlets(rawData); // month_notfake_outlets
+/*
+var testCount = 0;
+for(var i = 0; i < 12; ++i) {
+	console.log(month_fake_outlets[i])
+	for(var o = 0; o < 2; ++o) {
+		testCount += month_fake_outlets[i][o];
+	}
 }
+console.log(testCount);
+console.log(rawData);*/
+
+var outletPercentages_month = intoPercentages(month_outlet, 6);
+console.log(outletPercentages_month)
+
+var fakeOutletPercentages_month = intoPercentages(month_fake, 2);
+console.log(fakeOutletPercentages_month)
+
+var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
+console.log(fakeOutletPercentages_month)
+}
+
+// organize outlets by month
+
+/* Array Matrix function from : https://stackoverflow.com/questions/7545641/javascript-multidimensional-array
+
+Courtesy of: The Good Parts (O'Reilly, p. 64) */
+
+Array.matrix = function(numrows, numcols, initial) {
+    var arr = [];
+    for (var i = 0; i < numrows; ++i) {
+        var columns = [];
+        for (var j = 0; j < numcols; ++j) {
+            columns[j] = initial;
+        }
+        arr[i] = columns;
+    }
+    return arr;
+}
+
+var month_outlet = Array.matrix(33, 7, 0);
+var outlets = {"breitbart":0, "washingtonpost":1, "nyt":2, "nbc":3, "cnn":4, "fox":5, "misc":6};
+
+function outletsByMonth(d) { // want to put in rawData
+	d.forEach(function(element) {
+		var m = element.month;
+		var outlet_l = element.outlet;
+		outlet_l.forEach(function(element) {
+			var o = outlets[element];
+			month_outlet[m][o] += 1;
+		})
+	})
+}
+
+var month_fake = Array.matrix(33, 2, 0);
+// fake news vs. news
+function fakeness(d) { // want to put in rawData
+	d.forEach(function(element) {
+		var m = element.month;
+		var f = element.is_fakeNews;
+		
+		if (f == true) { // trumps says is fake
+			month_fake[m][0] += 1;
+		} else {
+			month_fake[m][1] += 1;
+		}
+	})
+}
+
+// outlets / fake news
+var month_fake_outlets = Array.matrix(33,7,0);
+function fakeOutlets(d) {
+		d.forEach(function(element) {
+			var f = element.is_fakeNews;
+			// console.log(f);
+			if (f == true) {
+				var m = element.month;
+				// console.log(m);
+				var outlet_l = element.outlet;
+				outlet_l.forEach(function(x) {
+					var o = outlets[x];
+					month_fake_outlets[m][o] += 1;
+				})
+		}})
+}
+
+// not fake
+var month_notfake_outlets = Array.matrix(33,7,0);
+function notFakeOutlets(d) {
+		d.forEach(function(element) {
+			var f = element.is_fakeNews;
+			// console.log(f);
+			if (f == false) {
+				var m = element.month;
+				// console.log(m);
+				var outlet_l = element.outlet;
+				outlet_l.forEach(function(x) {
+					var o = outlets[x];
+					month_notfake_outlets[m][o] += 1;
+				})
+		}})
+}
+
+function intoPercentages(arrayName, slice) { // slice = last index value 
+	var monthsinPercent = [];
+	for (var i = 0; i < 33; ++i) {
+		var total = 0;
+		m_array = arrayName[i].slice(0,slice);
+		
+		for (var ii in m_array) { // we have total of a month
+			total += m_array[ii]
+		} 
+		
+		for(var iii in m_array) { // month to percent
+			m_array[iii] = m_array[iii] / total
+		} 
+		monthsinPercent.push(m_array);
+}
+return monthsinPercent;
+}
+
 </script>
 </body>
 </html>
