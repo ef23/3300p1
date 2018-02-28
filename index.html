@@ -63,7 +63,7 @@ var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150;
 
-var linecolor = "rgb(40, 116, 166)";
+var linecolor = "orange"; // "rgb(40, 116, 166)";
 
 var vis = d3.select("#body")
 vis.append("svg")
@@ -100,17 +100,17 @@ svg.append("line")
 	.attr("id", "#electionline")
 	.attr("stroke-width", 3)
   .attr("stroke", linecolor)
-	.attr("opacity", 0.7)
+	.attr("opacity", 0.5)
   .attr("x1", xScale(new Date(2016, 10, 8)))
   .attr("x2", xScale(new Date(2016, 10, 8)))
-  .attr("y1", height)
-  .attr("y2", height - paddingBottom);
+  .attr("y1", padding)
+  .attr("y2", height);
 	
 svg.append("line")
 	.attr("id", "#campaignline")
 	.attr("stroke-width", 3)
   .attr("stroke", linecolor)
-	.attr("opacity", 0.7)
+	.attr("opacity", 0.5)
   .attr("x1", xScale(new Date(2015, 5, 15)))
   .attr("x2", xScale(new Date(2015, 5, 15)))
   .attr("y1", height - paddingBottom +32)
@@ -120,11 +120,11 @@ svg.append("line")
 	.attr("id", "#inaugurationline")
 	.attr("stroke-width", 3)
   .attr("stroke", linecolor)
-	.attr("opacity", 0.7)
+	.attr("opacity", 0.5)
   .attr("x1", xScale(new Date(2017, 0, 21)))
   .attr("x2", xScale(new Date(2017, 0, 21)))
-  .attr("y1", height - paddingBottom +32)
-  .attr("y2", height - paddingBottom);
+  .attr("y1", padding)
+  .attr("y2", height - paddingBottom + 32);
 		
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
@@ -149,35 +149,37 @@ var yScale = d3.scaleTime()
 	
 svg.append("line")
 	.attr("stroke-width", 2)
-  .attr("stroke", "orange")
+  .attr("stroke", "rgb(72, 201, 176)")
   .attr("x1", paddingSides)
   .attr("x2", width - (0.7*paddingSides))
-  .attr("y1", 150.5)
-  .attr("y2", 150.5);
+  .attr("y1", 138.5)
+  .attr("y2", 138.5);
 	
 svg.append("line")
 	.attr("stroke-width", 2)
-  .attr("stroke", "orange")
+  .attr("stroke", "rgb(72, 201, 176)")
   .attr("x1", paddingSides)
   .attr("x2", width -(0.7*paddingSides))
-  .attr("y1", 200.5)
-  .attr("y2", 200.5);
+  .attr("y1", 181.5)
+  .attr("y2", 181.5);
 
 svg.append("text")
 	.text("fox & friends")
+	.style("color", "rgb(72, 201, 176)")
+	.style("font-size", 12)
+	.style("font-style", "italic")
+	.attr("x", width - paddingSides + 5)
+	.attr("text-bottom", "middle")
+	.attr("y", 155);
+
+svg.append("text")
+	.text("timeslot")
+	.style("color", "rgb(72, 201, 176)")
 	.style("font-size", 12)
 	.style("font-style", "italic")
 	.attr("x", width - paddingSides + 5)
 	.attr("text-bottom", "middle")
 	.attr("y", 170);
-
-svg.append("text")
-	.text("timeslot")
-	.style("font-size", 12)
-	.style("font-style", "italic")
-	.attr("x", width - paddingSides + 5)
-	.attr("text-bottom", "middle")
-	.attr("y", 185);
 	
 svg.append("text")
 	.text("time of day tweeted")
@@ -210,7 +212,7 @@ var oct19 = new Date(2016, 9, 19);
 
 svg.append("rect")
 	.attr("id","electionLabelHighlight")
-	.attr("fill", "yellow")
+	.attr("fill", "orange")
 	.attr("stroke", linecolor)
 	.attr("stroke-width",3)
 	.attr("width", 250)
@@ -244,7 +246,6 @@ svg.append("rect")
 function drawLines(svg, height, paddingBottom, xScale, scale) {
   var importantDates = [inaugurationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
   var names = ["Inauguration Day ", "2016 Presidential Election", "Campaign Begins", "2016", "2017", "2018"]
-	var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
 
   importantDates.forEach(function(d, i){
     var isNotYear = isNaN(names[i]);
@@ -257,6 +258,7 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
     .attr("stroke", (isNotYear && notCampaign) ? linecolor : "black")
     .attr("x1", xScale(d))
     .attr("x2", xScale(d))
+		.attr("opacity", 0)
     .attr("y1", height - paddingBottom)
     .attr("y2", isNotYear ? padding : height - paddingBottom + 5);
 
@@ -279,11 +281,11 @@ function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
     //if (!d.is_media && !isSmall) return
     var opacity = 0.5;
     var color = "rgb(208, 211, 212)"
-    color = d.is_media ? "rgb(40, 116, 166)" : color
+    color = d.is_media ? "rgb(40, 116, 166)" : color;
 		opacity = d.is_media ? 0.6 : opacity
 
     svgV.append("circle")
-    .attr("r", 3*scale)
+    .attr("r", 3.5*scale)
     .attr("opacity", opacity)
     .attr("fill", color)
     .attr("cx", xScale(d.created_at))
