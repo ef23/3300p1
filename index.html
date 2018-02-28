@@ -4,18 +4,19 @@
 <title>Trump Twitter Analysis</title>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
 
 <style>
-h1 { font-family: 'VT323', monospace; font-size: 70px; color: rgb(8,160,233)}
-body { font-family: 'Helvetica Neue', 'Arial', sans-serif;}
+h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px;}
+body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253);}
+#container {margin: auto;}
+svg{display:block;margin:auto;border: solid #ccc 1px; }
 </style>
 
 </head>
 <body>
-<h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
-
+<h1 > Trump's Twitter: Analysis of a Stable Genius </h1>
+<div id="container">
 <script>
 /** Regex for grabbing media stuff or other points of interest */
 /** generates the regex that requires ALL words to be matched */
@@ -29,17 +30,17 @@ function fakenewsReg(str) {
 var keywords = [fakenewsReg("cnn"), fakenewsReg("fox"), "^(?!.*fake news).*fox.*$", fakenewsReg("(nytimes|new york times)"), fakenewsReg("washington post"), fakenewsReg("(nbc|msnbc)"), "(dems|democrats|dnc)","fbi", "russia", "immigration", "cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "obama", "fox"]
 var titles = ["CNN and Fake News", "FOX and Fake News", "FOX without Fake News", "New York Times and Fake News", "Washington Post and Fake News", "NBC and Fake News", "Democrats", "FBI", "Russia", "Immigration", "CNN", "nbc", "wapo", "nyt", "Obama", "fox"]
 
-var media = ["cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "fox", "media", "press", "(fake news|fakenews)"]
+var media = ["cnn", "nbc", "msnbc", "washington post", "washingtonpost", "wapo", "nytimes", "new york times", "fox", "media", "press", "fake news", "fakenews", "news", "journal", "reporting"]
 
 /** The code for reading and formatting data */
 
-var width = 1900;
-var height = 900;
+var width = 1000;
+var height = 500;
 var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150
 
-var vis = d3.select("body")
+var vis = d3.select("#container")
 vis.append("svg")
 .attr("width", width)
 .attr("height", height);
@@ -51,6 +52,8 @@ var dict = {};
 var sortedCounts = [];
 var beforeElectionCount = 0;
 var afterElectionCount = 0;
+var mediaCount = 0;
+var notMediaCount = 0;
 
 /** The X-Axis code for scale and axis */
 
@@ -126,13 +129,14 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
 
 function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
   data.forEach(function(d){
-    if (!d.is_media && !isSmall) return
+    //if (!d.is_media && !isSmall) return
     var opacity = 0.4;
-    var color = "rgb(0,132,180)"
-    color = d.is_media ? "#f1c40f" : color
+    var color = "rgb(208, 211, 212)"
+    color = d.is_media ? "rgb(40, 116, 166)" : color
+		opacity = d.is_media ? 0.6 : opacity
 
     svgV.append("circle")
-    .attr("r", 5*scale)
+    .attr("r", 3*scale)
     .attr("opacity", opacity)
     .attr("fill", color)
     .attr("cx", xScale(d.created_at))
@@ -150,6 +154,9 @@ function getTime(date){
 
 d3.json("data.json", callback);
 
+var mediaData = '[';
+var testCount = 0;
+
 function callback(data) {
   rawData = data;
   // fix date
@@ -160,8 +167,12 @@ function callback(data) {
     //TODO
     for (var i = 0; i < media.length; i++) {
       var keyword = media[i];
-      if(new RegExp(keyword).test(d.text)){
+			lowercased_text = d.text.toLowerCase();
+      if(lowercased_text.includes(keyword)){ 
+			//new RegExp(keyword).test(lowercased_text)
         d.is_media = true;
+				mediaData += JSON.stringify(d) + ', ';
+				testCount++;
         break;
       }
     }
@@ -171,15 +182,50 @@ function callback(data) {
     } else {
       afterElectionCount++;
     }
+		
+		if (d.is_media == true) { 
+			mediaCount++;
+		} else {
+			notMediaCount++;
+		}
   })
 
   drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 1);
   createSmallGraphs();
 }
-
 /******************************** END GRAPH 1 ****************************/
+</script>
+<script>
+/********************************** GRAPH 2 ******************************/
+// draw SVG set-up
+var width = 1000;
+var height = 500;
+var padding = 50;
+var paddingSides = 100;
+var paddingBottom = 150;
 
+var graph2 = d3.select("#container");
+graph2.append("svg")
+.attr("id","#graph2")
+.attr("width", width)
+.attr("height", height);
+
+var svg2 = d3.select("#graph2");
+svg2.append("text")
+.text("TEST")
+.attr("text-anchor", "middle");
+
+/******************************** END GRAPH 2 ****************************/
+/********************************** GRAPH 3 ******************************/
+
+
+/******************************** END GRAPH 3 ****************************/
+/********************************** GRAPH 4 ******************************/
+
+
+
+/******************************** END GRAPH 4 ****************************/
 function createSmallGraphs(){
   var lowercased = rawData.map(function(d){
     d.text = d.text.toLowerCase()
@@ -215,8 +261,6 @@ function generateGraph(arr){
     .attr("height", lheight);
 
     var svgLoop = d3.select("#svg" + i)
-
-
 
     var xLoopScale = d3.scaleTime()
         .domain([mindate, maxdate])
@@ -256,5 +300,6 @@ function generateGraph(arr){
 }
 
 </script>
+</div>
 </body>
 </html>
