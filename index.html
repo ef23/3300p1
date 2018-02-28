@@ -27,9 +27,9 @@ function fakenewsReg(str) {
   return "(?=.*(fake news|fakenews))" + generateRegex(str)
 }
 var keywords = [fakenewsReg("cnn"), fakenewsReg("fox"), "^(?!.*fake news).*fox.*$", fakenewsReg("(nytimes|new york times)"), fakenewsReg("washington post"), fakenewsReg("(nbc|msnbc)"), "(dems|democrats|dnc)","fbi", "russia", "immigration", "cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "obama", "fox"]
-var titles = ["CNN and Fake News", "FOX and Fake News", "FOX without Fake News", "New York Times and Fake News", "Washington Post and Fake News", "NBC and Fake News", "Democrats", "FBI", "Russia", "Immigration", "CNN", "nbc", "wapo", "nyt", "Obama", "fox"]
+var titles = ["CNN and Fake News", "FOX and Fake News", "FOX without Fake News", "New York Times and Fake News", "Washington Post and Fake News", "NBC and Fake News", "Democrats", "FBI", "Russia", "Immigration", "CNN", "nbc", "wapo", "nyt", "Obama", "fox", "republic"]
 
-var media = ["cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "fox", "media", "press", "(fake news|fakenews)"]
+var media = ["cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "fox", "media", "press", "(fake news|fakenews)", "news", "ratings", "report", "journali"]
 
 /** The code for reading and formatting data */
 
@@ -126,10 +126,8 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
 
 function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
   data.forEach(function(d){
-    if (!d.is_media && !isSmall) return
-    var opacity = 0.4;
-    var color = "rgb(0,132,180)"
-    color = d.is_media ? "#f1c40f" : color
+    var opacity = d.is_media ? 0.6 : 0.4
+    var color = d.is_media ? "blue" : "#b8b8b8"
 
     svgV.append("circle")
     .attr("r", 5*scale)
@@ -157,10 +155,9 @@ function callback(data) {
     var date = d.created_at;
     d.created_at = new Date(date);
     d.is_media = false;
-    //TODO
     for (var i = 0; i < media.length; i++) {
       var keyword = media[i];
-      if(new RegExp(keyword).test(d.text)){
+      if(new RegExp(keyword).test(d.text.toLowerCase())){
         d.is_media = true;
         break;
       }
@@ -173,10 +170,13 @@ function callback(data) {
     }
   })
 
+  console.log(rawData.filter((d)=>{return d.is_media}).length)
+
   drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 1);
   createSmallGraphs();
 }
+
 
 /******************************** END GRAPH 1 ****************************/
 
@@ -193,7 +193,7 @@ function createSmallGraphs(){
     })
     var before = 0;
     var after = 0;
-    filtered.concat(filter)
+    filtered.push(filter)
     // filtered.push([keywords[i], before*1.0/beforeElectionCount, after*1.0/afterElectionCount])
   }
   console.log(filtered)
