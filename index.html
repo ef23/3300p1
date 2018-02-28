@@ -1,17 +1,18 @@
 <html>
 
 <head>
-<title>Trump Twitter Analysis</title>
+<title>INFO3300 Project 1</title>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300, 400,700,800|Space+Mono:400,400i,700" rel="stylesheet">
 
 <style>
 .header {
   background: "white";
 }
 .parallax {
-    background-image: url("background.png");
+		<!--background-image: url("background.png");-->
     height: 100%;
     background-attachment: fixed;
     background-position: center;
@@ -19,17 +20,26 @@
     background-size: cover;
     z-index: -1;
 }
-h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px;}
-body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253); margin: auto;}
-svg {display:block;margin:auto;border: solid #ccc 1px;}
+h1 { font-family: 'Open Sans', sans-serif; font-weight: 800; letter-spacing: 4px; font-size: 50px; color: rgb(8,160,233); text-align:center; padding-top: 60px;}
+h2 { font-family: 'Open Sans', sans-serif; font-weight: 300; font-size: 22px; text-align:center;}
+h4 { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 22px; text-align:center; margin: 0 0 0 0;}
+
+body { font-family: 'Space Mono: 400', monospace; margin: auto; background-color:rgb(232,245,253)}
+svg {display:block; margin:auto;}
+p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
+.header {padding-bottom: 50px;}
 </style>
 
 </head>
 <body>
 <div class="parallax" id="body">
 <div class="header">
-  <h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
+  <h1 class="text-center"> TRUMP AND TWITTERING NEWS</h1>
+	<h2>A look at Trump's Twitter relationship with (fake) news before and after his election <br></h2>
+	<p>Team: Eric Feng, Erin Chen, Sohyeon Hwang</p>
 </div>
+
+<h4> TRUMP'S TWEETS SINCE HIS CAMPAIGN BEGAN</h4>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
 /** generates the regex that requires ALL words to be matched */
@@ -47,11 +57,13 @@ var media = ["cnn", "nbc", "msnbc", "washington post", "washingtonpost", "wapo",
 
 /** The code for reading and formatting data */
 
-var width = 1000;
-var height = 500;
+var width = 1100;
+var height = 550;
 var padding = 50;
 var paddingSides = 100;
-var paddingBottom = 150
+var paddingBottom = 150;
+
+var linecolor = "rgb(40, 116, 166)";
 
 var vis = d3.select("#body")
 vis.append("svg")
@@ -65,8 +77,7 @@ svg.append("rect")
 .attr("height", height)
 .attr("x", 0)
 .attr("y", 0)
-.attr("fill", "white");
-
+.attr("fill","rgb(232,245,253)");
 
 var rawData;
 var dict = {};
@@ -85,6 +96,36 @@ var xScale = d3.scaleTime()
     .domain([mindate, maxdate])
     .range([paddingSides, width - paddingSides]);
 
+svg.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", height)
+  .attr("y2", height - paddingBottom);
+	
+svg.append("line")
+	.attr("id", "#campaignline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2015, 5, 15)))
+  .attr("x2", xScale(new Date(2015, 5, 15)))
+  .attr("y1", height - paddingBottom +32)
+  .attr("y2", height - paddingBottom);
+	
+svg.append("line")
+	.attr("id", "#inaugurationline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2017, 0, 21)))
+  .attr("x2", xScale(new Date(2017, 0, 21)))
+  .attr("y1", height - paddingBottom +32)
+  .attr("y2", height - paddingBottom);
+		
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
   .attr("class", "xAxis")
@@ -105,53 +146,138 @@ var yScale = d3.scaleTime()
   .domain([midnight, midnight + dayInMill - 1])
   .nice(d3.timeDay, 1)
   .rangeRound([padding, height - paddingBottom]);
+	
+svg.append("line")
+	.attr("stroke-width", 2)
+  .attr("stroke", "orange")
+  .attr("x1", paddingSides)
+  .attr("x2", width - (0.7*paddingSides))
+  .attr("y1", 150.5)
+  .attr("y2", 150.5);
+	
+svg.append("line")
+	.attr("stroke-width", 2)
+  .attr("stroke", "orange")
+  .attr("x1", paddingSides)
+  .attr("x2", width -(0.7*paddingSides))
+  .attr("y1", 200.5)
+  .attr("y2", 200.5);
+
+svg.append("text")
+	.text("fox & friends")
+	.style("font-size", 12)
+	.style("font-style", "italic")
+	.attr("x", width - paddingSides + 5)
+	.attr("text-bottom", "middle")
+	.attr("y", 170);
+
+svg.append("text")
+	.text("timeslot")
+	.style("font-size", 12)
+	.style("font-style", "italic")
+	.attr("x", width - paddingSides + 5)
+	.attr("text-bottom", "middle")
+	.attr("y", 185);
+	
+svg.append("text")
+	.text("time of day tweeted")
+	.style("font-size", 16)
+	.style("font-family", "Open Sans")
+	.style("font-weight", 700)
+	.style("letter-spacing", 3)
+	.attr("transform", "rotate(-90)")
+	.attr("x",-350)
+	.attr("y",40);
 
 var yAxis = d3.axisLeft(yScale);
   svg.append("g")
   .attr("class", "yAxis")
+	.style("font-size", 10)
+	.style("font-family","Consolas")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(yAxis
     .tickFormat(d3.timeFormat('%H:%M'))
     .tickSize(0)
     .tickPadding(8))
 
-var campaignStartDay = new Date(2015, 5, 15)
-var electionDay = new Date(2016, 10, 8)
+var campaignStartDay = new Date(2015, 5, 15);
+var electionDay = new Date(2016, 10, 8);
 var inaugurationDay = new Date(2017, 0, 21);
 var y2016 = new Date(2016, 0, 1);
 var y2017 = new Date(2017, 0, 1);
 var y2018 = new Date(2018, 0, 1);
-var oct19 = new Date(2016, 9, 19)
+var oct19 = new Date(2016, 9, 19);
+
+svg.append("rect")
+	.attr("id","electionLabelHighlight")
+	.attr("fill", "yellow")
+	.attr("stroke", linecolor)
+	.attr("stroke-width",3)
+	.attr("width", 250)
+	.attr("height", 22)
+	.attr("opacity", 0.7)
+	.attr("x", xScale(electionDay)-131)
+	.attr("y", height - paddingBottom+80);
+	
+svg.append("rect")
+	.attr("id","campaignLabelHighlight")
+	.attr("stroke", linecolor)
+	.attr("fill", "none")
+	.attr("stroke-width",3)
+	.attr("width", 150)
+	.attr("height", 22)
+	.attr("opacity", 0.7)
+	.attr("x", xScale(campaignStartDay)-27)
+	.attr("y", height - paddingBottom+32);
+
+svg.append("rect")
+	.attr("id","inaugurationLabelHighlight")
+	.attr("stroke", linecolor)
+	.attr("fill", "none")
+	.attr("stroke-width",3)
+	.attr("width", 150)
+	.attr("height", 22)
+	.attr("opacity", 0.7)
+	.attr("x", xScale(inaugurationDay)-27)
+	.attr("y", height - paddingBottom+32);
 
 function drawLines(svg, height, paddingBottom, xScale, scale) {
   var importantDates = [inaugurationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
-  var names = ["Inauguration Day ", "2016 Pres Election", "Campaign Begins", "2016", "2017", "2018"]
+  var names = ["Inauguration Day ", "2016 Presidential Election", "Campaign Begins", "2016", "2017", "2018"]
+	var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
 
   importantDates.forEach(function(d, i){
     var isNotYear = isNaN(names[i]);
+		var notCampaign = !(names[i].includes("Campaign"));
+		var isCampaign = (names[i].includes("Campaign"));
+		var isElect = (names[i].includes("Election"));
 
     svg.append("line")
-    .attr("stroke-width", 2)
-    .attr("stroke", isNotYear ? "grey" : "black")
+    .attr("stroke-width", (isNotYear && notCampaign) ? 3 : 1)
+    .attr("stroke", (isNotYear && notCampaign) ? linecolor : "black")
     .attr("x1", xScale(d))
     .attr("x2", xScale(d))
     .attr("y1", height - paddingBottom)
-    .attr("y2", isNotYear ? padding : height - paddingBottom + 10)
+    .attr("y2", isNotYear ? padding : height - paddingBottom + 5);
 
     svg.append("text")
     .attr("x", xScale(d))
     .attr("y", height - paddingBottom)
-    .attr("font-size", (isNotYear ? 14 : 20) * scale)
+		.attr("id",(isElect? "#election" : void(0)))
+		.attr("text-anchor", "middle")
+		.attr("font-weight", 800)
+    .attr("font-size", (isNotYear ? 20 : 14) * scale)
     .text(names[i])
-    .attr("transform", "rotate(-" + (isNotYear ? 90 : 45) + "," + + xScale(d) + "," + (height - paddingBottom) + ")translate(" + (isNotYear ? -125.5 : -60)*scale + "," + (isNotYear ? 2.5 : 15)*scale +  ")");
-
+    .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 120 : 60) : (isElect ? 0 : 20))*scale +  ")");
+		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");		
   })
+
 }
 
 function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
   data.forEach(function(d){
     //if (!d.is_media && !isSmall) return
-    var opacity = 0.4;
+    var opacity = 0.5;
     var color = "rgb(208, 211, 212)"
     color = d.is_media ? "rgb(40, 116, 166)" : color
 		opacity = d.is_media ? 0.6 : opacity
@@ -213,9 +339,16 @@ function callback(data) {
 
   drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 0.8);
+	
+	// visuals
+	
   // createSmallGraphs();
 }
+
 /******************************** END GRAPH 1 ****************************/
+</script>
+<h4> MENTIONED NEWS OUTLETS BY MONTH</h4>
+<script>
 /********************************** GRAPH 2 ******************************/
 // draw SVG set-up
 var graph2 = d3.select("#body");
@@ -230,17 +363,31 @@ svg2.append("rect")
 .attr("height", height)
 .attr("x", 0)
 .attr("y", 0)
-.attr("fill", "white");
+.attr("fill","rgb(232,245,253)");
+
+svg2.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", height)
+  .attr("y2", -10);
+
 /** The X-Axis code for scale and axis */
 
 var monthScale = xScale;
 
 var monthAxis = d3.axisBottom(monthScale);
   svg2.append("g")
-  .attr("class", "xAxis")
+  .attr("class", "monthAxis")
+	.style("font-size", 14)
+	.style("font-weight", "bold")
+	.style("font-family","Consolas")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
-    .tickFormat(d3.timeFormat('%B')));
+    .tickFormat(d3.timeFormat('%b')));
 
 /** The Y-Axis code for scale and axis */
 
@@ -250,7 +397,9 @@ var percentageScale = d3.scaleLinear()
 
 var percentageAxis = d3.axisLeft(percentageScale);
   svg2.append("g")
-  .attr("id", "#testAxis")
+  .attr("id", "#percentAxis")
+	.style("font-size", 10)
+	.style("font-family","Consolas")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(percentageAxis
 		.tickFormat(d3.format(".0%"))
@@ -259,6 +408,9 @@ var percentageAxis = d3.axisLeft(percentageScale);
 
 
 /******************************** END GRAPH 2 ****************************/
+</script>
+<h4>HOW FAKE IS THE NEWS THIS MONTH?</h4>
+<script>
 /********************************** GRAPH 3 ******************************/
 var graph3 = d3.select("body");
 graph3.append("svg")
@@ -268,11 +420,24 @@ graph3.append("svg")
 
 var svg3 = d3.select("#graph3");
 
+svg3.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", height)
+  .attr("y2", -10);
+
 svg3.append("g")
   .attr("class", "xAxis")
+	.style("font-size", 14)
+	.style("font-weight", "bold")
+	.style("font-family","Consolas")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
-    .tickFormat(d3.timeFormat('%B')));
+    .tickFormat(d3.timeFormat('%b')));
 	
 svg3.append("g")
   .attr("id", "#testAxis")
@@ -280,30 +445,17 @@ svg3.append("g")
   .call(percentageAxis
     .tickSize(0)
     .tickPadding(8));
-
 /******************************** END GRAPH 3 ****************************/
+</script>
+
+<!--<h4> TRUMP'S FAKEST MEDIA</h4>-->
+<script>
 /********************************** GRAPH 4 ******************************/
 var graph4 = d3.select("body");
 graph4.append("svg")
 .attr("id","graph4")
 .attr("width", width)
 .attr("height", height);
-
-var svg4 = d3.select("#graph4");
-
-svg4.append("g")
-  .attr("class", "xAxis")
-  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
-  .call(monthAxis
-    .tickFormat(d3.timeFormat('%B')));
-	
-svg4.append("g")
-  .attr("id", "#testAxis")
-  .attr("transform", "translate(" + paddingSides + ", 0)")
-  .call(percentageAxis
-    .tickSize(0)
-    .tickPadding(8));
-
 
 /******************************** END GRAPH 4 ****************************/
 function createSmallGraphs(){
@@ -379,7 +531,7 @@ function generateGraph(arr){
 
 }
 
-</script>
-</div>
+</script> 
+</div> <!-- end parallelx div-->
 </body>
 </html>
