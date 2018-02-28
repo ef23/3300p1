@@ -9,15 +9,13 @@
 
 <style>
 h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px;}
-body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253);}
-#container {margin: auto;}
+body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253); margin: auto;}
 svg{display:block;margin:auto;border: solid #ccc 1px; }
 </style>
 
 </head>
 <body>
 <h1 > Trump's Twitter: Analysis of a Stable Genius </h1>
-<div id="container">
 <script>
 /** Regex for grabbing media stuff or other points of interest */
 /** generates the regex that requires ALL words to be matched */
@@ -41,8 +39,9 @@ var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150
 
-var vis = d3.select("#container")
+var vis = d3.select("body")
 vis.append("svg")
+.attr("id", "graph1")
 .attr("width", width)
 .attr("height", height);
 
@@ -169,7 +168,6 @@ function callback(data) {
       var keyword = media[i];
 			lowercased_text = d.text.toLowerCase();
       if(lowercased_text.includes(keyword)){
-			//new RegExp(keyword).test(lowercased_text)
         d.is_media = true;
 				mediaData += JSON.stringify(d) + ', ';
 				testCount++;
@@ -197,91 +195,45 @@ function callback(data) {
   // createSmallGraphs();
 }
 /******************************** END GRAPH 1 ****************************/
-</script>
-<script>
 /********************************** GRAPH 2 ******************************/
 // draw SVG set-up
-var width = 1000;
-var height = 500;
-var padding = 50;
-var paddingSides = 100;
-var paddingBottom = 150;
-
-var graph2 = d3.select("#container");
+var graph2 = d3.select("body");
 graph2.append("svg")
-.attr("id","#graph2")
+.attr("id","graph2")
 .attr("width", width)
-.attr("height", height)
+.attr("height", height);
 
-var svg2 = d3.selectAll("svg");
+var svg2 = d3.select("#graph2");
 
 /** The X-Axis code for scale and axis */
 
-var mindate = new Date(2015, 5, 15),
-    maxdate = new Date(2018, 2, 1)
+var monthScale = xScale;
 
-var xScale = d3.scaleTime()
-    .domain([mindate, maxdate])
-    .range([paddingSides, width - paddingSides]);
-
-var xAxis = d3.axisBottom(xScale);
+var monthAxis = d3.axisBottom(monthScale);
   svg2.append("g")
   .attr("class", "xAxis")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
-  .call(xAxis
+  .call(monthAxis
     .tickFormat(d3.timeFormat('%b'))
     .tickSize(0))
   .selectAll("text").remove()
 
 /** The Y-Axis code for scale and axis */
 
-var yScale = d3.scaleLinear()
+var percentageScale = d3.scaleLinear()
   .domain([0,1])
-  // .nice(d3.timeDay, 1)
   .rangeRound([height - paddingBottom, padding]);
 
-var yAxis = d3.axisLeft(yScale);
+var yAxis = d3.axisLeft(percentageScale);
   svg2.append("g")
-  .attr("class", "yAxis")
+  .attr("id", "#testAxis")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(yAxis
-    // .tickFormat(d3.timeFormat('%H:%M'))
     .tickSize(0)
-    .tickPadding(8))
+    .tickPadding(8));
 
-var campaignStartDay = new Date(2015, 5, 15)
-var electionDay = new Date(2016, 10, 8)
-var inaugurationDay = new Date(2017, 0, 21);
-var y2016 = new Date(2016, 0, 1);
-var y2017 = new Date(2017, 0, 1);
-var y2018 = new Date(2018, 0, 1);
-var oct19 = new Date(2016, 9, 19)
 
-function drawLines(svg, height, paddingBottom, xScale, scale) {
-  var importantDates = [electionDay, campaignStartDay, y2016, y2017, y2018]
-  var names = ["2016 Press Election", "Campaign Begins", "2016", "2017", "2018"]
 
-  importantDates.forEach(function(d, i){
-    var isNotYear = isNaN(names[i]);
-
-// important date lines
-//     svg2.append("line")
-//     .attr("stroke-width", 2)
-//     .attr("stroke", isNotYear ? "grey" : "black")
-//     .attr("x1", xScale(d))
-//     .attr("x2", xScale(d))
-//     .attr("y1", height - paddingBottom)
-//     .attr("y2", isNotYear ? padding : height - paddingBottom + 10)
-
-    svg2.append("text")
-    .attr("x", xScale(d))
-    .attr("y", height - paddingBottom)
-    .attr("font-size", (isNotYear ? 14 : 20) * scale)
-    .text(names[i])
-    .attr("transform", "rotate(-" + (isNotYear ? 90 : 45) + "," + + xScale(d) + "," + (height - paddingBottom) + ")translate(" + (isNotYear ? -125.5 : -60)*scale + "," + (isNotYear ? 2.5 : 15)*scale +  ")");
-
-  })
-}
 
 /******************************** END GRAPH 2 ****************************/
 /********************************** GRAPH 3 ******************************/
