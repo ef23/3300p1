@@ -1,4 +1,3 @@
-
 <html>
 
 <head>
@@ -8,14 +7,29 @@
 <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
 
 <style>
+.header {
+  background: "white";
+}
+.parallax {
+    background-image: url("background.png");
+    height: 100%;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: -1;
+}
 h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px;}
 body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253); margin: auto;}
-svg{display:block;margin:auto;border: solid #ccc 1px; }
+svg {display:block;margin:auto;border: solid #ccc 1px;}
 </style>
 
 </head>
 <body>
-<h1 > Trump's Twitter: Analysis of a Stable Genius </h1>
+<div class="parallax" id="body">
+<div class="header">
+  <h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
+</div>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
 /** generates the regex that requires ALL words to be matched */
@@ -39,13 +53,20 @@ var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150
 
-var vis = d3.select("body")
+var vis = d3.select("#body")
 vis.append("svg")
 .attr("id", "graph1")
 .attr("width", width)
 .attr("height", height);
 
 var svg = d3.selectAll("svg")
+svg.append("rect")
+.attr("width", width)
+.attr("height", height)
+.attr("x", 0)
+.attr("y", 0)
+.attr("fill", "white");
+
 
 var rawData;
 var dict = {};
@@ -191,20 +212,25 @@ function callback(data) {
   console.log(rawData.filter((d)=>{return d.is_media}).length)
 
   drawCircles(svg, xScale, yScale, rawData, 1, false);
-  drawLines(svg, height, paddingBottom, xScale, 1);
+  drawLines(svg, height, paddingBottom, xScale, 0.8);
   // createSmallGraphs();
 }
 /******************************** END GRAPH 1 ****************************/
 /********************************** GRAPH 2 ******************************/
 // draw SVG set-up
-var graph2 = d3.select("body");
+var graph2 = d3.select("#body");
 graph2.append("svg")
 .attr("id","graph2")
 .attr("width", width)
 .attr("height", height);
 
 var svg2 = d3.select("#graph2");
-
+svg2.append("rect")
+.attr("width", width)
+.attr("height", height)
+.attr("x", 0)
+.attr("y", 0)
+.attr("fill", "white");
 /** The X-Axis code for scale and axis */
 
 var monthScale = xScale;
