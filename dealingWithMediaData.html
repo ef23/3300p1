@@ -36,6 +36,8 @@ var miscCount = 0;
 var fakeNews = 0;
 var notFake = 0;
 
+
+
 function callback(data) {
   rawData = data;
 	 
@@ -88,15 +90,12 @@ function callback(data) {
 		} else {
 			notFake++;
 		}
+		
+		// label by month
+		var m = d.created_at.getMonth();
+		d.month = m;
 })
 }
-
-// function to arrange tweets by month
-function byMonth() {
-	
-
-}
-
 </script>
 </body>
 </html>
