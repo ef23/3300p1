@@ -7,8 +7,9 @@
 <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
 
 <style>
-.header {
-  background: "white";
+.right-tweet {
+  float:right;
+  display: inline-block;
 }
 .parallax {
     background-image: url("background.png");
@@ -19,7 +20,7 @@
     background-size: cover;
     z-index: -1;
 }
-h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px;}
+h1 { font-family: 'Share Tech Mono', monospace; font-size: 40px; color: rgb(8,160,233); text-align:center; padding-top: 50px; background-color: white}
 body { font-family: 'Helvetica Neue', 'Arial', sans-serif; background-color:rgb(232,245,253); margin: auto;}
 svg {display:block;margin:auto;border: solid #ccc 1px;}
 </style>
@@ -27,9 +28,7 @@ svg {display:block;margin:auto;border: solid #ccc 1px;}
 </head>
 <body>
 <div class="parallax" id="body">
-<div class="header">
-  <h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
-</div>
+<h1 class="text-center"> Trump's Twitter: Analysis of a Stable Genius </h1>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
 /** generates the regex that requires ALL words to be matched */
@@ -209,10 +208,42 @@ function callback(data) {
 		}
   })
 
+
+  // vis.append("img")
+  // .attr("src", "https://s.faketrumptweet.com/je6oj2hi_1dqhba9_1jav0um.png")
+  // .attr("class", "right-tweet")
+
   console.log(rawData.filter((d)=>{return d.is_media}).length)
+
+  var beginFox = new Date();
+  beginFox.setHours(6, 0, 0, 0)
+  var endFox = new Date()
+  endFox.setHours(9,0,0,0)
+  svg.append("rect")
+  .attr("x", paddingSides)
+  .attr("y", yScale(getTime(beginFox)))
+  .attr("height", yScale(getTime(endFox))- yScale(getTime(beginFox)))
+  .attr("width", width - paddingSides*2)
+  .attr("fill", "red")
+  .attr("opacity", 0.4)
+
+  svg.append("text")
+  .attr("x", width - paddingSides*2)
+  .attr("y", (yScale(getTime(endFox))- yScale(getTime(beginFox))))
+  .text("Fox and Friends Runtime")
+
+  svg.append("line")
+  .attr("stroke-width", 3)
+  .attr("stroke", "black")
+  .attr("x1", width - paddingSides*1.2)
+  .attr("x2", width - paddingSides)
+  .attr("y1", yScale(getTime(endFox)) - ((yScale(getTime(endFox))- yScale(getTime(beginFox)))/1.5))
+  .attr("y2", (yScale(getTime(endFox))- yScale(getTime(beginFox)))+10)
 
   drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 0.8);
+
+
   // createSmallGraphs();
 }
 /******************************** END GRAPH 1 ****************************/
