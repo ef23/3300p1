@@ -32,10 +32,12 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
   <div id="div1"></div>
   <h4>TWEETS CONTAINING CONTENT ABOUT MEDIA</h4>
   <div id="div2">
-	<h2> approx. 17% consistently </h2>
+	<h2> media mentioned approx. 17% consistently </h2>
 	</div>
   <h4> MENTIONED NEWS OUTLETS OVER TIME </h4>
-  <div id="div3"></div>
+  <div id="div3">
+	<h2> % mentions per outlet cumulatively over time </h2>
+	</div>
   <h4>HOW FAKE IS THE NEWS THIS MONTH? </h4>
   <div id="div4"></div>
   <h4>TRUMP'S FAKEST MEDIA</h4>
@@ -583,7 +585,7 @@ function toCumulative(og_array) {
 }
 
 // var outlets = ["washingtonpost":1, "nyt":2, "nbc":3, "cnn":4, "fox":5, "misc":6]
-var outletColors = ["#E5E7E9","#E59866","#F8C471","#F39C12","#E67E22","rgb(232,245,253)"];
+var outletColors = ["#D6EAF8","#B0C4DE","#5DADE2","#2874A6","#1A5276","rgb(232,245,253)"];
 var outletIndex = [0,1,2,3,4,5];
 
 /** The X-Axis code for scale and axis */
