@@ -290,16 +290,16 @@ function buildScatterplots(){
         .text("fox & friends")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides)
+        .attr("x", width - paddingSides+10)
         .attr("text-bottom", "middle")
-        .attr("y", 170);
+        .attr("y", 150);
       svg.append("text")
         .text("timeslot")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides + 10)
+        .attr("x", width - paddingSides + 20)
         .attr("text-bottom", "middle")
-        .attr("y", 185);
+        .attr("y", 165);
       var foxStartTime = new Date()
       foxStartTime.setHours(6,0,0)
       var foxEndTime = new Date()
@@ -361,7 +361,7 @@ d3.select("#graph1")
   .append("line")
 	.attr("stroke-width", 1)
   .attr("stroke", "black")
-  .attr("x1",830)
+  .attr("x1",820)
   .attr("y1", 90)
   .attr("x2",900)
   .attr("y2", 40);
