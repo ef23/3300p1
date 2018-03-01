@@ -129,35 +129,130 @@ function getTime(date){
           (date.getMinutes() * 60 * 1000) +
           (date.getSeconds() * 1000);
 }
-d3.json("data.json", callback);
+
+d3.queue()
+.defer(d3.json, "data.json")
+.defer(d3.json, "mediaData.json")
+.await(callback);
+
 var mediaData = '[';
 var testCount = 0;
-function callback(data) {
-  rawData = data;
-  // fix date
-  rawData.forEach(function(d, i) {
-    var date = d.created_at;
-    d.created_at = new Date(date);
-    d.is_media = false;
-    for (var i = 0; i < media.length; i++) {
-      var keyword = media[i];
-			lowercased_text = d.text.toLowerCase();
-      if(lowercased_text.includes(keyword)){
-        d.is_media = true;
-				mediaData += JSON.stringify(d) + ', ';
-				testCount++;
-        break;
+function callback(err, data, medData) {
+    rawData = data;
+    // fix date
+    rawData.forEach(function(d, i) {
+      var date = d.created_at;
+      d.created_at = new Date(date);
+      d.is_media = false;
+      for (var i = 0; i < media.length; i++) {
+        var keyword = media[i];
+  			lowercased_text = d.text.toLowerCase();
+        if(lowercased_text.includes(keyword)){
+          d.is_media = true;
+  				mediaData += JSON.stringify(d) + ', ';
+  				testCount++;
+          break;
+        }
       }
-    }
-		if (d.is_media == true) {
-			mediaCount++;
-		} else {
-			notMediaCount++;
-		}
+  		if (d.is_media == true) {
+  			mediaCount++;
+  		} else {
+  			notMediaCount++;
+  		}
+    })
+    console.log(rawData.filter((d)=>{return d.is_media}).length)
+
+    /**** build area graph data ***/
+
+    mediaData = medData;
+
+    mediaData.forEach(function(d, i) {
+      var date = d.created_at; // fix date format
+      d.created_at = new Date(date);
+
+      d.outlet = [];
+      var outlet = d.outlet;
+
+      // outlet
+      var tweet = d.text.toLowerCase();
+      var news_outlet;
+      if (tweet.includes("cnn")) { // CNN
+        cnnCount++;
+        outlet.push("cnn");
+      }
+      if (tweet.includes("nbc") || tweet.includes("msnbc")) { //NBC
+        nbcCount++;
+        outlet.push("nbc");
+      }
+      if (tweet.includes("washington post") || tweet.includes("washingtonpost") || tweet.includes("wapo")) { // WASHINGTON POST
+        wapoCount++;
+        outlet.push("washingtonpost");
+      }
+      if (tweet.includes("nytimes") || tweet.includes("new york times")) { // NYTIMES
+        nytCount++;
+        outlet.push("nyt");
+      }
+      if (tweet.includes("fox")) { // FOX
+        foxCount++;
+        outlet.push("fox");
+      }
+      if (tweet.includes("breitbart")) { // BREITBART
+        breitCount++;
+        outlet.push("breitbart");
+      }
+
+      if (outlet.length == 0) {
+        miscCount++;
+        outlet.push("misc");
+      }
+
+      d.is_fakeNews = false;
+
+      // fake news or just news
+      if (tweet.includes("fake") || tweet.includes("dishonest") || tweet.includes("fake")) { // CNN
+        fakeNews++;
+        d.is_fakeNews = true;
+      } else {
+        notFake++;
+      }
+
+      // label by month and year
+      var m = d.created_at.getMonth();
+      var y = d.created_at.getFullYear();
+      if (y!=2015) {
+        m = m + (12*(y-2015));
+      }
+    d.month = m - 5;
   })
-  console.log(rawData.filter((d)=>{return d.is_media}).length)
+
+  outletsByMonth(mediaData); //month_outlet
+  fakeness(mediaData); // month_fake
+  fakeOutlets(mediaData); //month_fake_outlets
+  //notFakeOutlets(mediaData); // month_notfake_outlets
+  /*
+  var testCount = 0;
+  for(var i = 0; i < 12; ++i) {
+    console.log(month_fake_outlets[i])
+    for(var o = 0; o < 2; ++o) {
+      testCount += month_fake_outlets[i][o];
+    }
+  }
+  console.log(testCount);
+  console.log(mediaData);*/
+
+  var outletPercentages_month = intoPercentages(month_outlet, 6);
+  // console.log(outletPercentages_month)
+
+  var fakeOutletPercentages_month = intoPercentages(month_fake, 2);
+  // console.log(fakeOutletPercentages_month)
+
+  var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
+  // console.log(fakeOutletPercentages_month)
+
   buildScatterplots();
+  createGraph(outletPercentages_month)
 }
+
 function buildScatterplots(){
   for (var i = 1; i < 3; i++) {
     var vis = d3.select("#div" + i)
@@ -190,21 +285,34 @@ function buildScatterplots(){
         .tickSize(0))
       .selectAll("text").remove()
 
-    /** The Y-Axis code for scale and axis */
-    svg.append("text")
-      .text("fox & friends")
-      .style("font-size", 12)
-      .style("font-style", "italic")
-      .attr("x", width - paddingSides + 10)
-      .attr("text-bottom", "middle")
-      .attr("y", 170);
-    svg.append("text")
-      .text("timeslot")
-      .style("font-size", 12)
-      .style("font-style", "italic")
-      .attr("x", width - paddingSides + 10)
-      .attr("text-bottom", "middle")
-      .attr("y", 185);
+    if (i == 1) {
+      svg.append("text")
+        .text("fox & friends")
+        .style("font-size", 12)
+        .style("font-style", "italic")
+        .attr("x", width - paddingSides)
+        .attr("text-bottom", "middle")
+        .attr("y", 170);
+      svg.append("text")
+        .text("timeslot")
+        .style("font-size", 12)
+        .style("font-style", "italic")
+        .attr("x", width - paddingSides + 10)
+        .attr("text-bottom", "middle")
+        .attr("y", 185);
+      var foxStartTime = new Date()
+      foxStartTime.setHours(6,0,0)
+      var foxEndTime = new Date()
+      foxEndTime.setHours(9,0,0)
+
+      svg.append("rect")
+        .attr("x", paddingSides)
+        .attr("y", yScale(getTime(foxStartTime)))
+        .attr("width", width - paddingSides*2)
+        .attr("height", (yScale(getTime(foxEndTime)) - yScale(getTime(foxStartTime))))
+        .attr("opacity", 0.2)
+        .attr("fill", "rgb(72,201,176)")
+    }
     svg.append("text")
       .text("time of day tweeted")
       .style("font-size", 16)
@@ -234,11 +342,127 @@ function buildScatterplots(){
       .attr("opacity", 0.7)
       .attr("x", xScale(electionDay)-131)
       .attr("y", height - paddingBottom + padding);
+
     drawCircles(svg, xScale, yScale, rawData, 1, i === 2);
     drawLines(svg, height, paddingBottom, xScale, 0.8);
   }
 }
 /******************************** END GRAPH 1 ****************************/
+
+var outlets = {"cnn": 0, "nbc":0, "washington post" : 0, "nytimes" : 0, "fox" :0 , "breitbart": 0}
+
+var mediaData;
+
+var cnnCount = 0;
+var nbcCount = 0;
+var wapoCount = 0;
+var nytCount = 0;
+var foxCount = 0;
+var breitCount = 0;
+var miscCount = 0;
+
+var fakeNews = 0;
+var notFake = 0;
+
+// organize outlets by month
+
+/* Array Matrix function from : https://stackoverflow.com/questions/7545641/javascript-multidimensional-array
+
+Courtesy of: The Good Parts (O'Reilly, p. 64) */
+
+Array.matrix = function(numrows, numcols, initial) {
+    var arr = [];
+    for (var i = 0; i < numrows; ++i) {
+        var columns = [];
+        for (var j = 0; j < numcols; ++j) {
+            columns[j] = initial;
+        }
+        arr[i] = columns;
+    }
+    return arr;
+}
+
+var month_outlet = Array.matrix(33, 7, 0);
+var outlets = {"breitbart":0, "washingtonpost":1, "nyt":2, "nbc":3, "cnn":4, "fox":5, "misc":6};
+
+function outletsByMonth(d) { // want to put in mediaData
+  d.forEach(function(element) {
+    var m = element.month;
+    var outlet_l = element.outlet;
+    outlet_l.forEach(function(element) {
+      var o = outlets[element];
+      month_outlet[m][o] += 1;
+    })
+  })
+}
+
+var month_fake = Array.matrix(33, 2, 0);
+// fake news vs. news
+function fakeness(d) { // want to put in mediaData
+  d.forEach(function(element) {
+    var m = element.month;
+    var f = element.is_fakeNews;
+
+    if (f == true) { // trumps says is fake
+      month_fake[m][0] += 1;
+    } else {
+      month_fake[m][1] += 1;
+    }
+  })
+}
+
+// outlets / fake news
+var month_fake_outlets = Array.matrix(33,7,0);
+function fakeOutlets(d) {
+    d.forEach(function(element) {
+      var f = element.is_fakeNews;
+      // console.log(f);
+      if (f == true) {
+        var m = element.month;
+        // console.log(m);
+        var outlet_l = element.outlet;
+        outlet_l.forEach(function(x) {
+          var o = outlets[x];
+          month_fake_outlets[m][o] += 1;
+        })
+    }})
+}
+
+// not fake
+var month_notfake_outlets = Array.matrix(33,7,0);
+function notFakeOutlets(d) {
+    d.forEach(function(element) {
+      var f = element.is_fakeNews;
+      // console.log(f);
+      if (f == false) {
+        var m = element.month;
+        // console.log(m);
+        var outlet_l = element.outlet;
+        outlet_l.forEach(function(x) {
+          var o = outlets[x];
+          month_notfake_outlets[m][o] += 1;
+        })
+    }})
+}
+
+function intoPercentages(arrayName, slice) { // slice = last index value
+  var monthsinPercent = [];
+  for (var i = 0; i < 33; ++i) {
+    var total = 0;
+    m_array = arrayName[i].slice(0,slice);
+
+    for (var ii in m_array) { // we have total of a month
+      total += m_array[ii]
+    }
+
+    for(var iii in m_array) { // month to percent
+      m_array[iii] = m_array[iii] / total
+    }
+    monthsinPercent.push(m_array);
+}
+return monthsinPercent;
+}
+
 /********************************** GRAPH 2 ******************************/
 // draw SVG set-up
 var graph2 = d3.select("#div3");
@@ -253,6 +477,7 @@ svg2.append("rect")
 .attr("x", 0)
 .attr("y", 0)
 .attr("fill","rgb(232,245,253)");
+
 svg2.append("line")
 	.attr("id", "#electionline")
 	.attr("stroke-width", 3)
@@ -262,6 +487,7 @@ svg2.append("line")
   .attr("x2", xScale(new Date(2016, 10, 8)))
   .attr("y1", height)
   .attr("y2", -10);
+
 /** The X-Axis code for scale and axis */
 var monthScale = xScale;
 var monthAxis = d3.axisBottom(monthScale);
@@ -287,6 +513,36 @@ var percentageAxis = d3.axisLeft(percentageScale);
 		.tickFormat(d3.format(".0%"))
     .tickSize(0)
     .tickPadding(8));
+
+var area = d3.area()
+    .x(function(d, i) { i+=5; console.log(i); console.log((Math.floor(2015 + i/12)) + ", "+ (i%12) + "," + "15"); return xScale(new Date(Math.floor(2015 + i/12), i%12, 15)) })
+    .y0(function(d) { return percentageScale(d[0]); })
+    .y1(function(d) { return percentageScale(d[1] - d[0]); });
+
+function createGraph(data){
+  var outletIndex = [0,1,2,3,4,5]
+  var stack = d3.stack()
+    .keys(outletIndex)
+  var z = d3.scaleOrdinal(d3.schemeCategory10);
+  // console.log(z(5));
+  svg2.selectAll(".layer")
+      .data(stack(data))
+    .enter().append("path")
+      .attr("class", "layer")
+      .attr("d", function(d) { return area(d); })
+      .style("fill", function(d, i) { return z(i); });
+
+//   layer.filter(function(d) { return d[d.length - 1][1] - d[d.length - 1][0] > 0.01; })
+//     .append("text")
+//       .attr("x", width - 6)
+//       .attr("y", function(d) { return yScale((d[d.length - 1][0] + d[d.length - 1][1]) / 2); })
+//       .attr("dy", ".35em")
+//       .style("font", "10px sans-serif")
+//       .style("text-anchor", "end")
+//       .text(function(d) { return d.key; });
+}
+
+
 /******************************** END GRAPH 2 ****************************/
 /********************************** GRAPH 3 ******************************/
 var graph3 = d3.select("#div4");
