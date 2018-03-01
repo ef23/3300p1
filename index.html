@@ -29,31 +29,15 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
 
 <h4> TRUMP'S TWEETS SINCE HIS CAMPAIGN BEGAN</h4>
 <div class="container-fluid">
-  <div class="row no-gutters">
-    <div id="div1"></div>
-  </div>
+  <div id="div1"></div>
   <h4>TWEETS CONTAINING CONTENT ABOUT MEDIA</h4>
-  <div class="row no-gutters">
-    <div id="div2"></div>
-  </div>
+  <div id="div2"></div>
   <h4> MENTIONED NEWS OUTLETS BY MONTH</h4>
-  <div class="row no-gutters">
-    <div class="col-md-8 offset-md-2" id="div3"></div>
-    <div class="col-md-2"></div>
-  </div>
+  <div id="div3"></div>
   <h4>HOW FAKE IS THE NEWS THIS MONTH?</h4>
-  <div class="row no-gutters">
-    <div class="col-md-2"></div>
-    <div class="col-md-8" id="div4"></div>
-  </div>
+  <div id="div4"></div>
 	<h4>TRUMP'S FAKEST MEDIA</h4>
-  <div class="row no-gutters">
-    <div class="col-md-8 offset-md-2" id="div5"></div>
-    <div class="col-md-2"></div>
-  </div>
-  <div class="row">
-    <div class="col-md-4 offset-md-4"></div>
-  </div>
+  <div id="div5"></div>
 </div>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
@@ -105,13 +89,11 @@ var yScale = d3.scaleTime()
   .nice(d3.timeDay, 1)
   .rangeRound([padding, height - paddingBottom]);
 function drawLines(svg, height, paddingBottom, xScale, scale) {
-  var importantDates = [inaugurationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
-  var names = ["Inauguration Day ", "2016 Presidential Election", "Campaign Begins", "2016", "2017", "2018"]
+  var importantDates = [electionDay, y2016, y2017, y2018]
+  var names = ["2016 Presidential Election", "2016", "2017", "2018"]
 	var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
   importantDates.forEach(function(d, i){
     var isNotYear = isNaN(names[i]);
-		var notCampaign = !(names[i].includes("Campaign"));
-		var isCampaign = (names[i].includes("Campaign"));
 		var isElect = (names[i].includes("Election"));
 
     svg.append("text")
@@ -122,7 +104,7 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
 		.attr("font-weight", 800)
     .attr("font-size", (isNotYear ? 20 : 14) * scale)
     .text(names[i])
-    .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 120 : 60) : (isElect ? 0 : 20))*scale +  ")");
+    .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 82 : 60) : (isElect ? 0 : 20))*scale +  ")");
 		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");
   })
 }
@@ -199,24 +181,6 @@ function buildScatterplots(){
       .attr("x2", xScale(electionDay))
       .attr("y1", height)
       .attr("y2", 0);
-    svg.append("line")
-      .attr("id", "#campaignline")
-      .attr("stroke-width", 3)
-      .attr("stroke", linecolor)
-      .attr("opacity", 0.7)
-      .attr("x1", xScale(new Date(2015, 5, 15)))
-      .attr("x2", xScale(new Date(2015, 5, 15)))
-      .attr("y1", height - paddingBottom +32)
-      .attr("y2", height - paddingBottom);
-    svg.append("line")
-      .attr("id", "#inaugurationline")
-      .attr("stroke-width", 3)
-      .attr("stroke", linecolor)
-      .attr("opacity", 0.7)
-      .attr("x1", xScale(new Date(2017, 0, 21)))
-      .attr("x2", xScale(new Date(2017, 0, 21)))
-      .attr("y1", height - paddingBottom +32)
-      .attr("y2", height - paddingBottom);
     var xAxis = d3.axisBottom(xScale);
       svg.append("g")
       .attr("class", "xAxis")
@@ -231,14 +195,14 @@ function buildScatterplots(){
       .text("fox & friends")
       .style("font-size", 12)
       .style("font-style", "italic")
-      .attr("x", width - paddingSides + 5)
+      .attr("x", width - paddingSides + 10)
       .attr("text-bottom", "middle")
       .attr("y", 170);
     svg.append("text")
       .text("timeslot")
       .style("font-size", 12)
       .style("font-style", "italic")
-      .attr("x", width - paddingSides + 5)
+      .attr("x", width - paddingSides + 10)
       .attr("text-bottom", "middle")
       .attr("y", 185);
     svg.append("text")
@@ -269,27 +233,7 @@ function buildScatterplots(){
       .attr("height", 22)
       .attr("opacity", 0.7)
       .attr("x", xScale(electionDay)-131)
-      .attr("y", height - paddingBottom+80);
-    svg.append("rect")
-      .attr("id","campaignLabelHighlight")
-      .attr("stroke", linecolor)
-      .attr("fill", "none")
-      .attr("stroke-width",3)
-      .attr("width", 150)
-      .attr("height", 22)
-      .attr("opacity", 0.7)
-      .attr("x", xScale(campaignStartDay)-27)
-      .attr("y", height - paddingBottom+32);
-    svg.append("rect")
-      .attr("id","inaugurationLabelHighlight")
-      .attr("stroke", linecolor)
-      .attr("fill", "none")
-      .attr("stroke-width",3)
-      .attr("width", 150)
-      .attr("height", 22)
-      .attr("opacity", 0.7)
-      .attr("x", xScale(inaugurationDay)-27)
-      .attr("y", height - paddingBottom+32);
+      .attr("y", height - paddingBottom + padding);
     drawCircles(svg, xScale, yScale, rawData, 1, i === 2);
     drawLines(svg, height, paddingBottom, xScale, 0.8);
   }
@@ -369,7 +313,9 @@ svg3.append("g")
   .call(monthAxis
     .tickFormat(d3.timeFormat('%b')));
 svg3.append("g")
-  .attr("id", "#testAxis")
+  .attr("id", "#percentAxis")
+	.style("font-size", 10)
+	.style("font-family","Consolas")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(percentageAxis
     .tickSize(0)
