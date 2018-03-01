@@ -11,8 +11,8 @@
 svg {display:block;margin:auto;/*border: solid #ccc 1px;*/}
 img.right{position:absolute; top:0; right:0; }
 h1 { font-family: 'Open Sans', sans-serif; font-weight: 800; letter-spacing: 4px; font-size: 50px; color: rgb(8,160,233); text-align:center; padding-top: 60px;}
-h2 { font-family: 'Open Sans', sans-serif; font-weight: 300; font-size: 22px; text-align:center; color: 'rgb(40, 116, 166)';}
-h4 { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 22px; text-align:center; margin: 10 0 10 0;}
+h2 { font-family: 'Open Sans', sans-serif; font-weight: 300; font-size: 20px; text-align:center; color: 'rgb(40, 116, 166)';}
+h4 { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 24px; text-align:center; margin: 10 0 10 0;}
 img { width:150%; margin-top:50%; padding-right: 25%}
 body { font-family: 'Space Mono: 400', monospace; /*margin: auto; */background-color:rgb(232,245,253)}
 p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
@@ -36,12 +36,16 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
 	</div>
   <h4> MENTIONED NEWS OUTLETS OVER TIME </h4>
   <div id="div3">
-	<h2> % mentions per outlet cumulatively over time </h2>
+	<h2> % cumulative mentions per news outlets in media-related tweets</h2>
 	</div>
   <h4>HOW FAKE IS THE NEWS THIS MONTH? </h4>
-  <div id="div4"></div>
+  <div id="div4">
+  <h2> % media-related tweets mentioning "fake news" </h2>
+  </div>
   <h4>TRUMP'S FAKEST MEDIA</h4>
-  <div id="div5"></div>
+  <div id="div5">
+  <h2> % tweets per news outlet associated with "fake news" </h2>
+  </div>
 </div>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
@@ -317,7 +321,7 @@ function buildScatterplots(){
         .attr("text-bottom", "middle")
         .attr("y", 150);
       svg.append("text")
-        .text("timeslot")
+        .text("time slot")
         .style("font-size", 12)
         .style("font-style", "italic")
         .attr("x", width - paddingSides + 20)
@@ -646,11 +650,33 @@ function createNewsOutletGraph(data){
     .enter().append("g")
     .attr("class", "layer");
 
-  layer.append("path")
-      .attr("class", "area")
-      .style("fill", function(d, i) { return z(d.key); })
-      .attr("d", area);
-       var newsNames= ["Washington Post", "New York Times", "NBC", "CNN", "Fox", ""];
+layer.append("path")
+    .attr("class", "area")
+    .style("fill", function(d, i) { return z(d.key); })
+    .attr("d", area);
+     var newsNames= ["Washington Post", "New York Times", "NBC", "CNN", "Fox", ""];
+
+//axis labels
+ svg2.append("text")
+   .text("% of Cumulative Mentions")
+   .style("font-size", 16)
+   .style("font-family", "Open Sans")
+   .style("font-weight", 700)
+   .style("letter-spacing", 3)
+   .attr("transform", "rotate(-90)")
+   .attr("x",-350)
+   .attr("y",120);
+
+ var axisyears=[2016,2017,2018];
+ axisyears.forEach(function(d,i){
+   svg2.append("text")
+   .attr("x", i*258+328)
+   .attr("y", 440)
+   .text(axisyears[i])
+   .style("font-size", 12)
+   .style("font-weight", 100);
+ })
+//key
   newsNames.forEach(function(d,i){
     svg2.append("text")
     .attr("x", width - paddingSides + 40)
@@ -728,37 +754,41 @@ function createFakeNewsAreaGraph(data){
       .style("fill", function(d, i) { return z(d.key); })
       .attr("d", area);
 
+//graph labels
+  svg2.append("text")
+    .attr("x", 640)
+    .attr("y", 100)
+    .text("Did not mention Fake News")
+    .style("font-size", 14)
+    .style("font-weight", 100);
 
   svg2.append("text")
-    .attr("x", width - paddingSides + 40)
-    .attr("y", 340)
+    .attr("x", 740)
+    .attr("y", 325)
     .text("Fake News")
     .style("font-size", 14)
     .style("font-weight", 100);
 
-  svg2.append("text")
-    .attr("x", width - paddingSides + 40)
-    .attr("y", 300)
-    .text("Did not mention")
-    .style("font-size", 14)
-    .style("font-weight", 100);
+//axis labels
+svg2.append("text")
+  .text("% of Mentions")
+  .style("font-size", 16)
+  .style("font-family", "Open Sans")
+  .style("font-weight", 700)
+  .style("letter-spacing", 3)
+  .attr("transform", "rotate(-90)")
+  .attr("x",-300)
+  .attr("y",120);
 
+var axisyears=[2016,2017,2018]
+axisyears.forEach(function(d,i){
   svg2.append("text")
-    .attr("x", width - paddingSides + 40)
-    .attr("y", 320)
-    .text("Fake News")
-    .style("font-size", 14)
-    .style("font-weight", 100);
-
-  for (i = 0; i < 2; i++){
-    svg2.append("rect")
-    .attr("height", 7)
-    .attr("width", 7)
-    .attr("fill", z(i))
-    .attr("stroke","black")
-    .attr("x",width - paddingSides + 20)
-    .attr("y",315-20*i);
-  }
+  .attr("x", i*258+328)
+  .attr("y", 440)
+  .text(axisyears[i])
+  .style("font-size", 12)
+  .style("font-weight", 100);
+})
 
   svg2.append("line")
     .attr("id", "#electionline")
