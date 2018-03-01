@@ -101,26 +101,29 @@ function callback(data) {
 outletsByMonth(rawData); //month_outlet
 fakeness(rawData); // month_fake 
 fakeOutlets(rawData); //month_fake_outlets
-//notFakeOutlets(rawData); // month_notfake_outlets
-/*
-var testCount = 0;
-for(var i = 0; i < 12; ++i) {
-	console.log(month_fake_outlets[i])
-	for(var o = 0; o < 2; ++o) {
-		testCount += month_fake_outlets[i][o];
-	}
-}
-console.log(testCount);
-console.log(rawData);*/
 
 var outletPercentages_month = intoPercentages(month_outlet, 6);
-console.log(outletPercentages_month)
+//console.log(outletPercentages_month)
 
 var fakeOutletPercentages_month = intoPercentages(month_fake, 2);
-console.log(fakeOutletPercentages_month)
+//console.log(fakeOutletPercentages_month)
 
 var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
-console.log(fakeOutletPercentages_month)
+//console.log(fakeOutletPercentages_month)
+
+/* CUMULATIVE VERSIONS */
+var monthly_outlets_cumul = toCumulative(month_outlet);
+var moc_percent = intoPercentages(monthly_outlets_cumul, 6);
+
+//console.log(monthly_outlets_cumul);
+//console.log(moc_percent);
+
+var monthly_fake_cumul = toCumulative(month_fake);
+var mfc_percent = intoPercentages(monthly_fake_cumul, 2)
+
+var monthly_fake_outlets_cumul = toCumulative(month_fake_outlets);
+var mfoc_percent = intoPercentages(monthly_fake_outlets_cumul, 6);
+
 }
 
 // organize outlets by month
@@ -221,6 +224,27 @@ function intoPercentages(arrayName, slice) { // slice = last index value
 }
 return monthsinPercent;
 }
+
+function toCumulative(og_array) {
+	var copyArray = og_array;
+	var num_months = og_array.length;
+	
+	var currentCount = [0, 0, 0, 0, 0, 0];
+	for (var i = 0; i < og_array.length; ++i) {
+		var subArray = og_array[i];
+		
+		for (var ii = 0; ii < subArray.length; ++ii) {
+			//console.log(currentCount, subArray[ii]);
+			currentCount[ii] += subArray[ii];
+			copyArray[i][ii] = currentCount[ii];
+			
+		}
+		//console.log(currentCount);
+	}
+	return copyArray;
+}
+
+//var testArray = Array.matrix(4, 6, 1);
 
 </script>
 </body>

@@ -249,8 +249,21 @@ function callback(err, data, medData) {
   var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
   // console.log(fakeOutletPercentages_month)
 
+  /* CUMULATIVE VERSIONS */
+var monthly_outlets_cumul = toCumulative(month_outlet);
+var moc_percent = intoPercentages(monthly_outlets_cumul, 6);
+
+//console.log(monthly_outlets_cumul);
+//console.log(moc_percent);
+
+var monthly_fake_cumul = toCumulative(month_fake);
+var mfc_percent = intoPercentages(monthly_fake_cumul, 2)
+
+var monthly_fake_outlets_cumul = toCumulative(month_fake_outlets);
+var mfoc_percent = intoPercentages(monthly_fake_outlets_cumul, 6);
+
   buildScatterplots();
-  createGraph(outletPercentages_month)
+  createGraph([moc_percent])
 }
 
 function buildScatterplots(){
@@ -290,16 +303,16 @@ function buildScatterplots(){
         .text("fox & friends")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides)
+        .attr("x", width - paddingSides+10)
         .attr("text-bottom", "middle")
-        .attr("y", 170);
+        .attr("y", 150);
       svg.append("text")
         .text("timeslot")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides + 10)
+        .attr("x", width - paddingSides + 20)
         .attr("text-bottom", "middle")
-        .attr("y", 185);
+        .attr("y", 165);
       var foxStartTime = new Date()
       foxStartTime.setHours(6,0,0)
       var foxEndTime = new Date()
@@ -361,7 +374,7 @@ d3.select("#graph1")
   .append("line")
 	.attr("stroke-width", 1)
   .attr("stroke", "black")
-  .attr("x1",830)
+  .attr("x1",820)
   .attr("y1", 90)
   .attr("x2",900)
   .attr("y2", 40);
@@ -528,61 +541,83 @@ function intoPercentages(arrayName, slice) { // slice = last index value
 return monthsinPercent;
 }
 
-/********************************** GRAPH TYPE 2 ******************************/
-// draw SVG set-up
-var graph2 = d3.select("#div3");
-graph2.append("svg")
-.attr("id","graph2")
-.attr("width", width)
-.attr("height", height);
-var svg2 = d3.select("#graph2");
-svg2.append("rect")
-.attr("width", width)
-.attr("height", height)
-.attr("x", 0)
-.attr("y", 0)
-.attr("fill","rgb(232,245,253)");
+function toCumulative(og_array) {
+  var copyArray = og_array;
+  var num_months = og_array.length;
 
-/** The X-Axis code for scale and axis */
-var monthScale = xScale;
-var monthAxis = d3.axisBottom(monthScale);
-  svg2.append("g")
-  .attr("class", "monthAxis")
-	.style("font-size", 14)
-	.style("font-weight", "bold")
-	.style("font-family","Consolas")
-  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
-  .call(monthAxis
-    .tickFormat(d3.timeFormat('%b')));
-/** The Y-Axis code for scale and axis */
-var percentageScale = d3.scaleLinear()
-  .domain([0,1])
-  .rangeRound([height - paddingBottom, padding]);
-var percentageAxis = d3.axisLeft(percentageScale);
-  svg2.append("g")
-  .attr("id", "#percentAxis")
-	.style("font-size", 10)
-	.style("font-family","Consolas")
-  .attr("transform", "translate(" + paddingSides + ", 0)")
-  .call(percentageAxis
-		.tickFormat(d3.format(".0%"))
-    .tickSize(0)
-    .tickPadding(8));
+  var currentCount = [0, 0, 0, 0, 0, 0];
+  for (var i = 0; i < og_array.length; ++i) {
+    var subArray = og_array[i];
 
-var area = d3.area()
-    .x(function(d, i) { i+=5; return xScale(new Date(Math.floor(2015 + i/12), i%12, 15)) })
-    .y0(function(d) { return percentageScale(d[0]); })
-    .y1(function(d) { return percentageScale(d[1]); });
+    for (var ii = 0; ii < subArray.length; ++ii) {
+      //console.log(currentCount, subArray[ii]);
+      currentCount[ii] += subArray[ii];
+      copyArray[i][ii] = currentCount[ii];
+
+    }
+    //console.log(currentCount);
+  }
+  return copyArray;
+}
 
 // var outlets = ["washingtonpost":1, "nyt":2, "nbc":3, "cnn":4, "fox":5, "misc":6]
 var outletColors = ["#ecf0f1", "#95a5a6", "#8e44ad", "#e74c3c", "#2980b9", "rgb(232,245,253)"]
 var outletIndex = [0,1,2,3,4,5]
 
+/** The X-Axis code for scale and axis */
+var monthScale = xScale;
+var monthAxis = d3.axisBottom(monthScale);
+var percentageScale = d3.scaleLinear()
+    .domain([0,1])
+    .rangeRound([height - paddingBottom, padding]);
+var percentageAxis = d3.axisLeft(percentageScale);
+var area = d3.area()
+  .x(function(d, i) { i+=5; return xScale(new Date(Math.floor(2015 + i/12), i%12, 15)) })
+  .y0(function(d) { return percentageScale(d[0]); })
+  .y1(function(d) { return percentageScale(d[1]); });
+
+var stack = d3.stack()
+  .keys(outletIndex)
+var z = d3.scaleOrdinal(d3.schemeCategory10);
+z.domain(outletIndex).range(outletColors)
+
 function createGraph(data){
-  var stack = d3.stack()
-    .keys(outletIndex)
-  var z = d3.scaleOrdinal(d3.schemeCategory10);
-  z.domain(outletIndex).range(outletColors)
+  data.forEach(function(data, i){
+  i+=3;
+  // draw SVG set-up
+  var graph2 = d3.select("#div" + i);
+  graph2.append("svg")
+  .attr("id","graph2")
+  .attr("width", width)
+  .attr("height", height);
+
+  var svg2 = d3.select("#graph" + (i-1));
+  svg2.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("fill","rgb(232,245,253)");
+
+  svg2.append("g")
+  .attr("class", "monthAxis")
+  .style("font-size", 14)
+  .style("font-weight", "bold")
+  .style("font-family","Consolas")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+  .tickFormat(d3.timeFormat('%b')));
+  /** The Y-Axis code for scale and axis */
+  svg2.append("g")
+    .attr("id", "#percentAxis")
+    .style("font-size", 10)
+    .style("font-family","Consolas")
+    .attr("transform", "translate(" + paddingSides + ", 0)")
+    .call(percentageAxis
+    .tickFormat(d3.format(".0%"))
+    .tickSize(0)
+    .tickPadding(8));
+
   // console.log(z(5));
   var g = svg2.append("g")
   var layer = g.selectAll(".layer")
@@ -594,10 +629,22 @@ function createGraph(data){
       .attr("class", "area")
       .style("fill", function(d, i) { return z(d.key); })
       .attr("d", area);
+  })
+}
 
-  svg2.append("line")
-  .attr("id", "#electionline")
-  .attr("stroke-width", 3)
+
+
+/******************************** END GRAPH 2 ****************************/
+/********************************** GRAPH 3 ******************************/
+var graph3 = d3.select("#div4");
+graph3.append("svg")
+.attr("id","graph3")
+.attr("width", width)
+.attr("height", height);
+var svg3 = d3.select("#graph3");
+svg3.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
   .attr("stroke", linecolor)
   .attr("opacity", 0.7)
   .attr("x1", xScale(new Date(2016, 10, 8)))
@@ -605,7 +652,6 @@ function createGraph(data){
   .attr("y1", height)
   .attr("y2", -10);
 
-}
 
 </script>
 </div> <!-- end parallelx div-->
