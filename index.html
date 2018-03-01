@@ -213,7 +213,7 @@ function buildScatterplots(){
       .style("letter-spacing", 3)
       .attr("transform", "rotate(-90)")
       .attr("x",-350)
-      .attr("y",40);
+      .attr("y",120);
     var yAxis = d3.axisLeft(yScale);
       svg.append("g")
       .attr("class", "yAxis")
@@ -221,7 +221,7 @@ function buildScatterplots(){
       .style("font-family","Consolas")
       .attr("transform", "translate(" + paddingSides + ", 0)")
       .call(yAxis
-        .tickFormat(d3.timeFormat('%H:%M'))
+        .tickFormat(d3.timeFormat('%I:%M:%p'))
         .tickSize(0)
         .tickPadding(8))
     svg.append("rect")
@@ -238,23 +238,32 @@ function buildScatterplots(){
     drawLines(svg, height, paddingBottom, xScale, 0.8);
 
 //labels
+
+d3.select("#graph1")
+  .append('svg:image')
+  .attr('xlink:href', 'twitterlogo.png')
+  .attr("x",900)
+  .attr("y",20)
+  .attr("width",25)
+  .attr("height",25);
+
+
 d3.select("#graph1")
   .append("line")
-	.attr("id", "#tweetlabel")
 	.attr("stroke-width", 1)
   .attr("stroke", "black")
   .attr("x1",830)
   .attr("y1", 90)
   .attr("x2",900)
-  .attr("y2", 20);
+  .attr("y2", 40);
 
 d3.select("#graph1")
   .append("text")
   .text("Tweet")
   .style("font-size", 12)
   .style("font-weight", 100)
-  .attr("x",900)
-  .attr("y",15);
+  .attr("x",925)
+  .attr("y",35);
 
 
 d3.select("#graph2")
