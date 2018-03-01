@@ -32,7 +32,7 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
   <div id="div1"></div>
   <h4>TWEETS CONTAINING CONTENT ABOUT MEDIA</h4>
   <div id="div2">
-	<h2> media mentioned approx. 17% consistently </h2>
+	<h2> media mentioned approx. <b>17%</b> consistently </h2>
 	</div>
   <h4> MENTIONED NEWS OUTLETS OVER TIME </h4>
   <div id="div3">
@@ -802,6 +802,49 @@ axisyears.forEach(function(d,i){
 
 }
 
+/***************** Graph 5: Trump's Fakest Media *******************/
+
+var div5 = d3.select("#div5");
+div5.append("svg")
+  .attr("id","graph5")
+  .attr("width", width)
+  .attr("height", height);
+	
+svg5 = d3.select("#graph5");
+svg5.append("rect")
+  .attr("width", width)
+  .attr("height", height)
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("fill","rgb(232,245,253)");
+
+ svg5.append("g");
+
+//graph labels
+/* cnn : 44 / 235 --> 0.18723404255
+fox : 15 / 354 --> 0.04237288135
+nbc : 32 / 116 --> 0.27586206896
+nyt : 24 / 115 --> 0.20869565217
+washingtonpost : 12 / 50 --> 0.24
+
+fakeNews / not Fake = 272 / 1087 --> 0.25
+*/
+
+var labels = ["OVERALL", ""]
+
+svg5.append("text")
+  .attr("x", 640)
+  .attr("y", 100)
+  .text("CNN")
+  .style("font-size", 14)
+  .style("font-weight", 100);
+
+svg5.append("text")
+  .attr("x", 740)
+  .attr("y", 325)
+  .text("NY Times")
+  .style("font-size", 14)
+  .style("font-weight", 100);
 
 </script>
 </div> <!-- end parallelx div-->

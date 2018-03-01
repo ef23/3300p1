@@ -9,43 +9,21 @@
 <body>
 <script>
 
+/*
+FAKE / TOTAL
+breitbart : 1 / 20
+misc : 180 / 544
 
-var midnight = new Date();
-midnight.setHours(0, 0, 0, 0);
-midnight = midnight.getTime();
-var dayInMill = 86400000;
+cnn : 44 / 235
+fox : 15 / 354
+nbc : 32 / 116
+nyt : 24 / 115
+washingtonpost : 12 / 50 
 
-function getTime(date){ //created_at
-   return midnight +
-          (date.getHours() * 60 * 60 * 1000) +
-          (date.getMinutes() * 60 * 1000) +
-          (date.getSeconds() * 1000);
-}
-var outlets = {"cnn": 0, "nbc":0, "washington post" : 0, "nytimes" : 0, "fox" :0 , "breitbart": 0}
+fakeNews / not Fake = 272 / 1087
+*/
 
-var rawData;
-d3.json("mediaData.json", callback);
 
-function callback(data) {
-
-}
-
-// returns an [{"CNN":[fake, notfake, total]}]
-function fakesnessScores(d) { //rawData 
-	var fakenessByOutlet = {};
-	d.forEach(function(element) {
-		var outlet = element.outlet;
-		var f = element.is_fakeNews;
-		
-		if (f==true) { // is fake news
-			
-		} else { // not fake news
-		
-		}
-		
-	})
-	return fakenessByOutlet;
-}
 
 
 // Google Trends formatting
