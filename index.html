@@ -23,8 +23,8 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
 <body>
 <div class="header">
   <h1 class="text-center"> TRUMP AND TWITTERING NEWS</h1>
-	<h2>A look at Trump's Twitter relationship with (fake) news before and after his election <br></h2>
-	<p>Team: Eric Feng, Erin Chen, Sohyeon Hwang</p>
+  <h2>A look at Trump's Twitter relationship with (fake) news before and after his election <br></h2>
+  <p>Team: Eric Feng, Erin Chen, Sohyeon Hwang</p>
 </div>
 
 <h4> TRUMP'S TWEETS SINCE HIS CAMPAIGN BEGAN</h4>
@@ -36,7 +36,7 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
   <div id="div3"></div>
   <h4>HOW FAKE IS THE NEWS THIS MONTH?</h4>
   <div id="div4"></div>
-	<h4>TRUMP'S FAKEST MEDIA</h4>
+  <h4>TRUMP'S FAKEST MEDIA</h4>
   <div id="div5"></div>
 </div>
 <script>
@@ -91,21 +91,21 @@ var yScale = d3.scaleTime()
 function drawLines(svg, height, paddingBottom, xScale, scale) {
   var importantDates = [electionDay, y2016, y2017, y2018]
   var names = ["2016 Presidential Election", "2016", "2017", "2018"]
-	var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
+  var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
   importantDates.forEach(function(d, i){
     var isNotYear = isNaN(names[i]);
-		var isElect = (names[i].includes("Election"));
+    var isElect = (names[i].includes("Election"));
 
     svg.append("text")
     .attr("x", xScale(d))
     .attr("y", height - paddingBottom)
-		.attr("id",(isElect? "#election" : void(0)))
-		.attr("text-anchor", "middle")
-		.attr("font-weight", 800)
+    .attr("id",(isElect? "#election" : void(0)))
+    .attr("text-anchor", "middle")
+    .attr("font-weight", 800)
     .attr("font-size", (isNotYear ? 20 : 14) * scale)
     .text(names[i])
     .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 82 : 60) : (isElect ? 0 : 20))*scale +  ")");
-		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");
+    //condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");
   })
 }
 function drawCircles(svgV, xScale, yScale, data, scale, isMedia){
@@ -114,7 +114,7 @@ function drawCircles(svgV, xScale, yScale, data, scale, isMedia){
     var opacity = 0.6;
     var color = "rgb(208, 211, 212)"
     color = isMedia ? (d.is_media ? "rgb(40, 116, 166)" : color) : "rgb(40, 116, 166)"
-		opacity = isMedia ? (d.is_media ? opacity : 0.5) : opacity
+    opacity = isMedia ? (d.is_media ? opacity : 0.5) : opacity
     svgV.append("circle")
     .attr("r", 3*scale)
     .attr("opacity", opacity)
@@ -146,19 +146,19 @@ function callback(err, data, medData) {
       d.is_media = false;
       for (var i = 0; i < media.length; i++) {
         var keyword = media[i];
-  			lowercased_text = d.text.toLowerCase();
+        lowercased_text = d.text.toLowerCase();
         if(lowercased_text.includes(keyword)){
           d.is_media = true;
-  				mediaData += JSON.stringify(d) + ', ';
-  				testCount++;
+          mediaData += JSON.stringify(d) + ', ';
+          testCount++;
           break;
         }
       }
-  		if (d.is_media == true) {
-  			mediaCount++;
-  		} else {
-  			notMediaCount++;
-  		}
+      if (d.is_media == true) {
+        mediaCount++;
+      } else {
+        notMediaCount++;
+      }
     })
     console.log(rawData.filter((d)=>{return d.is_media}).length)
 
@@ -374,7 +374,7 @@ function buildScatterplots(){
 
     d3.select("#graph1")
       .append("line")
-    	.attr("stroke-width", 1)
+      .attr("stroke-width", 1)
       .attr("stroke", "black")
       .attr("x1",820)
       .attr("y1", 90)
@@ -594,51 +594,6 @@ function createGraph(data){
   .attr("height", height);
 
   var svg2 = d3.select("#graph" + (i));
-  var outletIndex = [0,1,2,3,4,5]
-  var stack = d3.stack()
-    .keys(outletIndex)
-  var z = d3.scaleOrdinal(d3.schemeCategory10);
-  z.domain(outletIndex)
-  // console.log(z(5));
-  var g = svg2.append("g")
-  var layer = g.selectAll(".layer")
-    .data(stack(data))
-    .enter().append("g")
-    .attr("class", "layer");
-
-  layer.append("path")
-      .attr("class", "area")
-      .style("fill", function(d, i) { return z(d.key); })
-      .attr("d", area);
-  d3.select("#graph" + i)
-       .append("text")
-       .attr("x", width - paddingSides + 40)
-       .attr("y", 280)
-       .text("Miscellaneous")
-       .style("font-size", 10)
-       .style("font-weight", 100);
-
- svg2.append("text")
-   .text("Percentage of Tweets")
-   .style("font-size", 16)
-   .style("font-family", "Open Sans")
-   .style("font-weight", 700)
-   .style("letter-spacing", 3)
-   .attr("transform", "rotate(-90)")
-   .attr("x",-350)
-   .attr("y",120);
-
-var newsNames= ["Miscellaneous", "Fox","CNN","NBC","New York Times"];
-newsNames.forEach(function(d,i){
-
-svg2.append("text")
-.attr("x", width - paddingSides + 40)
-.attr("y", 280+20*i)
-.text(newsNames[i])
-.style("font-size", 12)
-.style("font-weight", 100);
-})
-
   svg2.append("rect")
   .attr("width", width)
   .attr("height", height)
@@ -651,6 +606,50 @@ svg2.append("text")
   .style("font-size", 14)
   .style("font-weight", "bold")
   .style("font-family","Consolas")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+  .tickFormat(d3.timeFormat('%b')));
+  /** The Y-Axis code for scale and axis */
+  svg2.append("g")
+    .attr("id", "#percentAxis")
+    .style("font-size", 10)
+    .style("font-family","Consolas")
+    .attr("transform", "translate(" + paddingSides + ", 0)")
+    .call(percentageAxis
+    .tickFormat(d3.format(".0%"))
+    .tickSize(0)
+    .tickPadding(8));
+
+    var g = svg2.append("g")
+    var layer = g.selectAll(".layer")
+      .data(stack(data))
+      .enter().append("g")
+      .attr("class", "layer");
+
+    layer.append("path")
+        .attr("class", "area")
+        .style("fill", function(d, i) { return z(d.key); })
+        .attr("d", area);
+         var newsNames= ["Miscellaneous", "Fox","CNN","NBC","New York Times"];
+    newsNames.forEach(function(d,i){
+
+    svg2.append("text")
+    .attr("x", width - paddingSides + 40)
+    .attr("y", 280+20*i)
+    .text(newsNames[i])
+    .style("font-size", 10)
+    .style("font-weight", 100);
+    })
+
+
+    for (i = 0; i <5; i++){
+      svg2.append("rect")
+      .attr("height", 7)
+      .attr("width", 7)
+      .attr("fill", "black")
+      .attr("x",width - paddingSides + 20)
+      .attr("y",275+20*i);
+    }
   })
 }
 </script>
