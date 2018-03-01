@@ -165,7 +165,6 @@ function callback(err, data, medData) {
         notMediaCount++;
       }
     })
-    console.log(rawData.filter((d)=>{return d.is_media}).length)
 
     /**** build area graph data ***/
 
@@ -234,25 +233,9 @@ function callback(err, data, medData) {
   fakeness(mediaData); // month_fake
   fakeOutlets(mediaData); //month_fake_outlets
   //notFakeOutlets(mediaData); // month_notfake_outlets
-  /*
-  var testCount = 0;
-  for(var i = 0; i < 12; ++i) {
-    console.log(month_fake_outlets[i])
-    for(var o = 0; o < 2; ++o) {
-      testCount += month_fake_outlets[i][o];
-    }
-  }
-  console.log(testCount);
-  console.log(mediaData);*/
-
   var outletPercentages_month = intoPercentages(month_outlet, 6);
-  // console.log(outletPercentages_month)
-
   var fakeOutletPercentages_month = intoPercentages(month_fake, 2);
-  // console.log(fakeOutletPercentages_month)
 
-  // var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
-  // console.log(fakeOutletPercentages_month)
 
   /* CUMULATIVE VERSIONS */
 var monthly_outlets_cumul = toCumulative(month_outlet);
@@ -274,7 +257,6 @@ var mfoc_percent = intoPercentages(monthly_fake_outlets_cumul, 6);
 
 function buildScatterplots(){
   for (var i = 1; i < 3; i++) {
-    console.log(i)
     var vis = d3.select("#div" + i)
     vis.append("svg")
       .attr("id", "graph" + i)
@@ -287,15 +269,6 @@ function buildScatterplots(){
     .attr("x", 0)
     .attr("y", 0)
     .attr("fill","rgb(232,245,253)");
-    svg.append("line")
-    .attr("id", "#electionline")
-    .attr("stroke-width", 3)
-    .attr("stroke", linecolor)
-    .attr("opacity", 0.7)
-    .attr("x1", xScale(electionDay))
-    .attr("x2", xScale(electionDay))
-    .attr("y1", height)
-    .attr("y2", 0);
     var xAxis = d3.axisBottom(xScale);
       svg.append("g")
       .attr("class", "xAxis")
@@ -371,6 +344,17 @@ function buildScatterplots(){
 
     drawCircles(svg, xScale, yScale, rawData, 1, i === 2);
     drawLines(svg, height, paddingBottom, xScale, 0.8, i == 1);
+
+    // overlay the election line on top
+    svg.append("line")
+    .attr("id", "#electionline")
+    .attr("stroke-width", 3)
+    .attr("stroke", linecolor)
+    .attr("opacity", 0.7)
+    .attr("x1", xScale(electionDay))
+    .attr("x2", xScale(electionDay))
+    .attr("y1", height)
+    .attr("y2", 0);
 
 //labels
 
