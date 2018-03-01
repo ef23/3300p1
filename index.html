@@ -8,8 +8,9 @@
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300, 400,700,800|Space+Mono:400,400i,700" rel="stylesheet">
 
 <style>
-.header {
-  background: "white";
+.right-tweet {
+  float:right;
+  display: inline-block;
 }
 .parallax {
 		<!--background-image: url("background.png");-->
@@ -63,15 +64,17 @@ var padding = 50;
 var paddingSides = 100;
 var paddingBottom = 150;
 
+/** drawing lines and notes that sit in background **/
 var linecolor = "orange"; // "rgb(40, 116, 166)";
 
+/** set up graph 1  **/
 var vis = d3.select("#body")
 vis.append("svg")
 .attr("id", "graph1")
 .attr("width", width)
 .attr("height", height);
 
-var svg = d3.selectAll("svg")
+var svg = d3.selectAll("svg");
 svg.append("rect")
 .attr("width", width)
 .attr("height", height)
@@ -95,37 +98,7 @@ var mindate = new Date(2015, 5, 15),
 var xScale = d3.scaleTime()
     .domain([mindate, maxdate])
     .range([paddingSides, width - paddingSides]);
-
-svg.append("line")
-	.attr("id", "#electionline")
-	.attr("stroke-width", 3)
-  .attr("stroke", linecolor)
-	.attr("opacity", 0.5)
-  .attr("x1", xScale(new Date(2016, 10, 8)))
-  .attr("x2", xScale(new Date(2016, 10, 8)))
-  .attr("y1", padding)
-  .attr("y2", height);
 	
-svg.append("line")
-	.attr("id", "#campaignline")
-	.attr("stroke-width", 3)
-  .attr("stroke", linecolor)
-	.attr("opacity", 0.5)
-  .attr("x1", xScale(new Date(2015, 5, 15)))
-  .attr("x2", xScale(new Date(2015, 5, 15)))
-  .attr("y1", height - paddingBottom +32)
-  .attr("y2", height - paddingBottom);
-	
-svg.append("line")
-	.attr("id", "#inaugurationline")
-	.attr("stroke-width", 3)
-  .attr("stroke", linecolor)
-	.attr("opacity", 0.5)
-  .attr("x1", xScale(new Date(2017, 0, 21)))
-  .attr("x2", xScale(new Date(2017, 0, 21)))
-  .attr("y1", padding)
-  .attr("y2", height - paddingBottom + 32);
-		
 var xAxis = d3.axisBottom(xScale);
   svg.append("g")
   .attr("class", "xAxis")
@@ -146,7 +119,47 @@ var yScale = d3.scaleTime()
   .domain([midnight, midnight + dayInMill - 1])
   .nice(d3.timeDay, 1)
   .rangeRound([padding, height - paddingBottom]);
+
+/** labelling things **/
+svg.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.5)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", padding)
+  .attr("y2", height);
 	
+svg.append("text")
+	.text("5155")
+	.attr("font-family", "Open Sans")
+	.attr("font-weight", 800)
+	.attr("font-style", "italic")
+	.attr("opacity", 0.5)
+  .attr("x1", 100)
+  .attr("y1", 200);
+
+svg.append("line")
+	.attr("id", "#campaignline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.5)
+  .attr("x1", xScale(new Date(2015, 5, 15)))
+  .attr("x2", xScale(new Date(2015, 5, 15)))
+  .attr("y1", height - paddingBottom +32)
+  .attr("y2", height - paddingBottom);
+
+svg.append("line")
+	.attr("id", "#inaugurationline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.5)
+  .attr("x1", xScale(new Date(2017, 0, 21)))
+  .attr("x2", xScale(new Date(2017, 0, 21)))
+  .attr("y1", height - paddingBottom + 32)
+  .attr("y2", height - paddingBottom);
+
 svg.append("line")
 	.attr("stroke-width", 2)
   .attr("stroke", "rgb(72, 201, 176)")
@@ -180,7 +193,7 @@ svg.append("text")
 	.attr("x", width - paddingSides + 5)
 	.attr("text-bottom", "middle")
 	.attr("y", 170);
-	
+
 svg.append("text")
 	.text("time of day tweeted")
 	.style("font-size", 16)
@@ -220,7 +233,7 @@ svg.append("rect")
 	.attr("opacity", 0.7)
 	.attr("x", xScale(electionDay)-131)
 	.attr("y", height - paddingBottom+80);
-	
+
 svg.append("rect")
 	.attr("id","campaignLabelHighlight")
 	.attr("stroke", linecolor)
@@ -271,9 +284,8 @@ function drawLines(svg, height, paddingBottom, xScale, scale) {
     .attr("font-size", (isNotYear ? 20 : 14) * scale)
     .text(names[i])
     .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 120 : 60) : (isElect ? 0 : 20))*scale +  ")");
-		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");		
+		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");
   })
-
 }
 
 function drawCircles(svgV, xScale, yScale, data, scale, isSmall){
@@ -304,7 +316,8 @@ function getTime(date){
 d3.json("data.json", callback);
 
 var mediaData = '[';
-var testCount = 0;
+var preMedia = 0;
+var postMedia = 0;
 
 function callback(data) {
   rawData = data;
@@ -319,15 +332,16 @@ function callback(data) {
       if(lowercased_text.includes(keyword)){
         d.is_media = true;
 				mediaData += JSON.stringify(d) + ', ';
-				testCount++;
         break;
       }
     }
 
     if (d.created_at < new Date(2016, 10, 8)) {
       beforeElectionCount++;
+			if (d.is_media == true) {preMedia++}
     } else {
       afterElectionCount++;
+			if (d.is_media == true) {postMedia++}
     }
 
 		if (d.is_media == true) {
@@ -339,12 +353,9 @@ function callback(data) {
 
   console.log(rawData.filter((d)=>{return d.is_media}).length)
 
+
   drawCircles(svg, xScale, yScale, rawData, 1, false);
   drawLines(svg, height, paddingBottom, xScale, 0.8);
-	
-	// visuals
-	
-  // createSmallGraphs();
 }
 
 /******************************** END GRAPH 1 ****************************/
@@ -414,13 +425,19 @@ var percentageAxis = d3.axisLeft(percentageScale);
 <h4>HOW FAKE IS THE NEWS THIS MONTH?</h4>
 <script>
 /********************************** GRAPH 3 ******************************/
-var graph3 = d3.select("body");
+var graph3 = d3.select("#body");
 graph3.append("svg")
 .attr("id","graph3")
 .attr("width", width)
 .attr("height", height);
 
 var svg3 = d3.select("#graph3");
+svg3.append("rect")
+.attr("width", width)
+.attr("height", height)
+.attr("x", 0)
+.attr("y", 0)
+.attr("fill","rgb(232,245,253)");
 
 svg3.append("line")
 	.attr("id", "#electionline")
@@ -440,7 +457,7 @@ svg3.append("g")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
     .tickFormat(d3.timeFormat('%b')));
-	
+
 svg3.append("g")
   .attr("id", "#testAxis")
   .attr("transform", "translate(" + paddingSides + ", 0)")
@@ -450,7 +467,7 @@ svg3.append("g")
 /******************************** END GRAPH 3 ****************************/
 </script>
 
-<!--<h4> TRUMP'S FAKEST MEDIA</h4>-->
+<h4> TRUMP'S FAKEST MEDIA</h4>
 <script>
 /********************************** GRAPH 4 ******************************/
 var graph4 = d3.select("body");
@@ -533,7 +550,7 @@ function generateGraph(arr){
 
 }
 
-</script> 
+</script>
 </div> <!-- end parallelx div-->
 </body>
 </html>
