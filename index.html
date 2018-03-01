@@ -528,7 +528,7 @@ function intoPercentages(arrayName, slice) { // slice = last index value
 return monthsinPercent;
 }
 
-/********************************** GRAPH 2 ******************************/
+/********************************** GRAPH TYPE 2 ******************************/
 // draw SVG set-up
 var graph2 = d3.select("#div3");
 graph2.append("svg")
@@ -542,16 +542,6 @@ svg2.append("rect")
 .attr("x", 0)
 .attr("y", 0)
 .attr("fill","rgb(232,245,253)");
-
-svg2.append("line")
-	.attr("id", "#electionline")
-	.attr("stroke-width", 3)
-  .attr("stroke", linecolor)
-	.attr("opacity", 0.7)
-  .attr("x1", xScale(new Date(2016, 10, 8)))
-  .attr("x2", xScale(new Date(2016, 10, 8)))
-  .attr("y1", height)
-  .attr("y2", -10);
 
 /** The X-Axis code for scale and axis */
 var monthScale = xScale;
@@ -584,12 +574,15 @@ var area = d3.area()
     .y0(function(d) { return percentageScale(d[0]); })
     .y1(function(d) { return percentageScale(d[1]); });
 
+// var outlets = ["washingtonpost":1, "nyt":2, "nbc":3, "cnn":4, "fox":5, "misc":6]
+var outletColors = ["#ecf0f1", "#95a5a6", "#8e44ad", "#e74c3c", "#2980b9", "rgb(232,245,253)"]
+var outletIndex = [0,1,2,3,4,5]
+
 function createGraph(data){
-  var outletIndex = [0,1,2,3,4,5]
   var stack = d3.stack()
     .keys(outletIndex)
   var z = d3.scaleOrdinal(d3.schemeCategory10);
-  z.domain(outletIndex)
+  z.domain(outletIndex).range(outletColors)
   // console.log(z(5));
   var g = svg2.append("g")
   var layer = g.selectAll(".layer")
@@ -602,124 +595,18 @@ function createGraph(data){
       .style("fill", function(d, i) { return z(d.key); })
       .attr("d", area);
 
-//   layer.filter(function(d) { return d[d.length - 1][1] - d[d.length - 1][0] > 0.01; })
-//     .append("text")
-//       .attr("x", width - 6)
-//       .attr("y", function(d) { return yScale((d[d.length - 1][0] + d[d.length - 1][1]) / 2); })
-//       .attr("dy", ".35em")
-//       .style("font", "10px sans-serif")
-//       .style("text-anchor", "end")
-//       .text(function(d) { return d.key; });
-}
-
-/******************************** END GRAPH 2 ****************************/
-/********************************** GRAPH 3 ******************************/
-var graph3 = d3.select("#div4");
-graph3.append("svg")
-.attr("id","graph3")
-.attr("width", width)
-.attr("height", height);
-var svg3 = d3.select("#graph3");
-svg3.append("line")
-	.attr("id", "#electionline")
-	.attr("stroke-width", 3)
+  svg2.append("line")
+  .attr("id", "#electionline")
+  .attr("stroke-width", 3)
   .attr("stroke", linecolor)
-	.attr("opacity", 0.7)
+  .attr("opacity", 0.7)
   .attr("x1", xScale(new Date(2016, 10, 8)))
   .attr("x2", xScale(new Date(2016, 10, 8)))
   .attr("y1", height)
-  .attr("y2", 0);
-svg3.append("g")
-  .attr("class", "xAxis")
-	.style("font-size", 14)
-	.style("font-weight", "bold")
-	.style("font-family","Consolas")
-  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
-  .call(monthAxis
-    .tickFormat(d3.timeFormat('%b')));
-svg3.append("g")
-  .attr("id", "#percentAxis")
-	.style("font-size", 10)
-	.style("font-family","Consolas")
-  .attr("transform", "translate(" + paddingSides + ", 0)")
-  .call(percentageAxis
-    .tickSize(0)
-    .tickPadding(8));
-/******************************** END GRAPH 3 ****************************/
-</script>
+  .attr("y2", -10);
 
-<script>
-/********************************** GRAPH 4 ******************************/
-var graph4 = d3.select("#div5");
-graph4.append("svg")
-.attr("id","graph4")
-.attr("width", width)
-.attr("height", height);
-/******************************** END GRAPH 4 ****************************/
-function createSmallGraphs(){
-  var lowercased = rawData.map(function(d){
-    d.text = d.text.toLowerCase()
-    return d;
-  })
-  var filtered = []
-  for (var i = 0; i < keywords.length; i++) {
-    var regex = new RegExp(keywords[i]);
-    var filter = lowercased.filter(function(d) {
-      return regex.test(d.text)
-    })
-    var before = 0;
-    var after = 0;
-    filtered.push(filter)
-    // filtered.push([keywords[i], before*1.0/beforeElectionCount, after*1.0/afterElectionCount])
-  }
-  console.log(filtered)
-  generateGraph(filtered)
 }
-function generateGraph(arr){
-  var lwidth = 950
-  var lheight = 475
-  var lpadding = 25;
-  var lpaddingSides = 50;
-  var lpaddingBottom = 100
-  arr.forEach(function(data, i) {
-    var body = d3.select("body")
-    body.append("svg")
-    .attr("id", "svg" + i)
-    .attr("width", lwidth)
-    .attr("height", lheight);
-    var svgLoop = d3.select("#svg" + i)
-    var xLoopScale = d3.scaleTime()
-        .domain([mindate, maxdate])
-        .range([lpaddingSides, lwidth - lpaddingSides]);
-    var xLoopAxis = d3.axisBottom(xLoopScale);
-      svgLoop.append("g")
-      .attr("class", "xLoopAxis")
-      .attr("transform", "translate(0," + (lheight - lpaddingBottom) + ")")
-      .call(xLoopAxis
-        .tickFormat(d3.timeFormat('%b'))
-        .tickSize(0))
-      .selectAll("text").remove()
-    var yLoopScale = d3.scaleTime()
-      .domain([midnight, midnight + dayInMill - 1])
-      .nice(d3.timeDay, 1)
-      .rangeRound([lpadding, lheight - lpaddingBottom]);
-    var yLoopAxis = d3.axisLeft(yLoopScale);
-      svgLoop.append("g")
-      .attr("class", "yLoopAxis")
-      .attr("transform", "translate(" + lpaddingSides + ", 0)")
-      .call(yLoopAxis
-        .tickFormat(d3.timeFormat('%H:%M'))
-        .tickSize(0)
-        .tickPadding(8))
-    drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6, true);
-    drawLines(svgLoop, lheight, lpaddingBottom, xLoopScale, .5);
-    svgLoop.append("text")
-    .attr("text-anchor", "middle")
-    .attr("x", lwidth/2)
-    .attr("y", 10)
-    .text(titles[i]);
-  })
-}
+
 </script>
 </div> <!-- end parallelx div-->
 </body>
