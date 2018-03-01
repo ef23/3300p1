@@ -36,12 +36,16 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
 	</div>
   <h4> MENTIONED NEWS OUTLETS OVER TIME </h4>
   <div id="div3">
-	<h2> % mentions per news outlet cumulatively over time </h2>
+	<h2> % cumulative mentions per news outlets in media-related tweets</h2>
 	</div>
   <h4>HOW FAKE IS THE NEWS THIS MONTH? </h4>
-  <div id="div4"></div>
+  <div id="div4">
+  <h2> % media-related tweets mentioning "fake news" </h2>
+  </div>
   <h4>TRUMP'S FAKEST MEDIA</h4>
-  <div id="div5"></div>
+  <div id="div5">
+  <h2> % tweets per news outlet associated with "fake news" </h2>
+  </div>
 </div>
 <script>
 /** Regex for grabbing media stuff or other points of interest */
@@ -663,13 +667,13 @@ layer.append("path")
    .attr("x",-350)
    .attr("y",120);
 
- var axisyears=[2015,2016,2017];
+ var axisyears=[2016,2017,2018];
  axisyears.forEach(function(d,i){
    svg2.append("text")
    .attr("x", i*258+328)
    .attr("y", 440)
    .text(axisyears[i])
-   .style("font-size", 14)
+   .style("font-size", 12)
    .style("font-weight", 100);
  })
 //key
@@ -776,13 +780,13 @@ svg2.append("text")
   .attr("x",-300)
   .attr("y",120);
 
-var axisyears=[2015,2016,2017];
+var axisyears=[2016,2017,2018]
 axisyears.forEach(function(d,i){
   svg2.append("text")
   .attr("x", i*258+328)
   .attr("y", 440)
   .text(axisyears[i])
-  .style("font-size", 14)
+  .style("font-size", 12)
   .style("font-weight", 100);
 })
 
