@@ -36,6 +36,11 @@ var miscCount = 0;
 var fakeNews = 0;
 var notFake = 0;
 
+// scores 
+var outlets_fake = {"breitbart":0, "washingtonpost":0, "nyt":0, "nbc":0, "cnn":0, "fox":0, "misc":0};
+var outlets_notfake = {"breitbart":0, "washingtonpost":0, "nyt":0, "nbc":0, "cnn":0, "fox":0, "misc":0};
+var outlets_total = {"breitbart":0, "washingtonpost":0, "nyt":0, "nbc":0, "cnn":0, "fox":0, "misc":0};
+
 function callback(data) {
   rawData = data;
 	 
@@ -49,6 +54,7 @@ function callback(data) {
 		// outlet
 		var tweet = d.text.toLowerCase();
 		var news_outlet;
+		
 		if (tweet.includes("cnn")) { // CNN
 			cnnCount++;
 			outlet.push("cnn");
@@ -103,20 +109,12 @@ fakeness(rawData); // month_fake
 fakeOutlets(rawData); //month_fake_outlets
 
 var outletPercentages_month = intoPercentages(month_outlet, 6);
-//console.log(outletPercentages_month)
-
 var fakeOutletPercentages_month = intoPercentages(month_fake, 2);
-//console.log(fakeOutletPercentages_month)
-
 var fakeOutletPercentages_month = intoPercentages(month_fake_outlets, 6);
-//console.log(fakeOutletPercentages_month)
 
 /* CUMULATIVE VERSIONS */
 var monthly_outlets_cumul = toCumulative(month_outlet);
 var moc_percent = intoPercentages(monthly_outlets_cumul, 6);
-
-//console.log(monthly_outlets_cumul);
-//console.log(moc_percent);
 
 var monthly_fake_cumul = toCumulative(month_fake);
 var mfc_percent = intoPercentages(monthly_fake_cumul, 2)
@@ -124,6 +122,7 @@ var mfc_percent = intoPercentages(monthly_fake_cumul, 2)
 var monthly_fake_outlets_cumul = toCumulative(month_fake_outlets);
 var mfoc_percent = intoPercentages(monthly_fake_outlets_cumul, 6);
 
+fakeScore(rawData,"test");
 }
 
 // organize outlets by month
@@ -170,6 +169,27 @@ function fakeness(d) { // want to put in rawData
 		} else {
 			month_fake[m][1] += 1;
 		}
+	})
+}
+
+var outlet_fakes = {"breitbart":0, "washingtonpost":0, "nyt":0, "nbc":0, "cnn":0, "fox":0, "misc":0};
+var outlet_totals = {"breitbart":0, "washingtonpost":0, "nyt":0, "nbc":0, "cnn":0, "fox":0, "misc":0};
+function fakeScore(d) {
+	d.forEach(function(element) {
+		var outlets = element.outlet;
+		var isFake = element.is_fakeNews;
+
+		if (isFake) {
+			outlets.forEach(function(o) {
+				outlet_fakes[o]++;
+				outlet_totals[o]++;
+			})
+		} else {
+			outlets.forEach(function(o) {
+				outlet_totals[o]++;
+			})
+		}
+		
 	})
 }
 
@@ -243,8 +263,6 @@ function toCumulative(og_array) {
 	}
 	return copyArray;
 }
-
-//var testArray = Array.matrix(4, 6, 1);
 
 </script>
 </body>
