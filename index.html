@@ -1,0 +1,455 @@
+<html>
+
+<head>
+<title>INFO3300 Project 1</title>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300, 400,700,800|Space+Mono:400,400i,700" rel="stylesheet">
+
+<style>
+svg {display:block;margin:auto;/*border: solid #ccc 1px;*/}
+img.right{position:absolute; top:0; right:0; }
+h1 { font-family: 'Open Sans', sans-serif; font-weight: 800; letter-spacing: 4px; font-size: 50px; color: rgb(8,160,233); text-align:center; padding-top: 60px;}
+h2 { font-family: 'Open Sans', sans-serif; font-weight: 300; font-size: 22px; text-align:center;}
+h4 { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 22px; text-align:center; margin: 0 0 0 0;}
+img { width:150%; margin-top:50%; padding-right: 25%}
+body { font-family: 'Space Mono: 400', monospace; /*margin: auto; */background-color:rgb(232,245,253)}
+p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
+.header {padding-bottom: 50px;}
+</style>
+
+</head>
+<body>
+<div class="header">
+  <h1 class="text-center"> TRUMP AND TWITTERING NEWS</h1>
+	<h2>A look at Trump's Twitter relationship with (fake) news before and after his election <br></h2>
+	<p>Team: Eric Feng, Erin Chen, Sohyeon Hwang</p>
+</div>
+
+<h4> TRUMP'S TWEETS SINCE HIS CAMPAIGN BEGAN</h4>
+<div class="container-fluid">
+  <div class="row no-gutters">
+    <div id="div1"></div>
+  </div>
+  <h4>TWEETS CONTAINING CONTENT ABOUT MEDIA</h4>
+  <div class="row no-gutters">
+    <div id="div2"></div>
+  </div>
+  <h4> MENTIONED NEWS OUTLETS BY MONTH</h4>
+  <div class="row no-gutters">
+    <div class="col-md-8 offset-md-2" id="div3"></div>
+    <div class="col-md-2"></div>
+  </div>
+  <h4>HOW FAKE IS THE NEWS THIS MONTH?</h4>
+  <div class="row no-gutters">
+    <div class="col-md-2"></div>
+    <div class="col-md-8" id="div4"></div>
+  </div>
+	<h4>TRUMP'S FAKEST MEDIA</h4>
+  <div class="row no-gutters">
+    <div class="col-md-8 offset-md-2" id="div5"></div>
+    <div class="col-md-2"></div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 offset-md-4"></div>
+  </div>
+</div>
+<script>
+/** Regex for grabbing media stuff or other points of interest */
+/** generates the regex that requires ALL words to be matched */
+function generateRegex(str){
+  return "(?=.*" + str + ")"
+}
+function fakenewsReg(str) {
+  return "(?=.*(fake news|fakenews))" + generateRegex(str)
+}
+var keywords = [fakenewsReg("cnn"), fakenewsReg("fox"), "^(?!.*fake news).*fox.*$", fakenewsReg("(nytimes|new york times)"), fakenewsReg("washington post"), fakenewsReg("(nbc|msnbc)"), "(dems|democrats|dnc)","fbi", "russia", "immigration", "cnn", "(nbc|msnbc)", "(washington post|washingtonpost)", "(nytimes|new york times)", "obama", "fox"]
+var titles = ["CNN and Fake News", "FOX and Fake News", "FOX without Fake News", "New York Times and Fake News", "Washington Post and Fake News", "NBC and Fake News", "Democrats", "FBI", "Russia", "Immigration", "CNN", "nbc", "wapo", "nyt", "Obama", "fox", "republic"]
+var media = ["cnn", "nbc", "msnbc", "washington post", "washingtonpost", "wapo", "nytimes", "new york times", "fox", "media", "press", "fake news", "fakenews", "news", "journal", "reporting"]
+/** The code for reading and formatting data */
+var width = 1100;
+var height = 550;
+var padding = 50;
+var paddingSides = 100;
+var paddingBottom = 150;
+var linecolor = "orange";
+
+var midnight = new Date();
+midnight.setHours(0, 0, 0, 0);
+midnight = midnight.getTime();
+var dayInMill = 86400000
+
+var campaignStartDay = new Date(2015, 5, 15);
+var electionDay = new Date(2016, 10, 8);
+var inaugurationDay = new Date(2017, 0, 21);
+var y2016 = new Date(2016, 0, 1);
+var y2017 = new Date(2017, 0, 1);
+var y2018 = new Date(2018, 0, 1);
+var mindate = new Date(2015, 5, 15),
+    maxdate = new Date(2018, 2, 1)
+var rawData;
+var dict = {};
+var sortedCounts = [];
+var beforeElectionCount = 0;
+var afterElectionCount = 0;
+var mediaCount = 0;
+var notMediaCount = 0;
+
+/** The X-Axis code for scale and axis */
+var xScale = d3.scaleTime()
+    .domain([mindate, maxdate])
+    .range([paddingSides, width - paddingSides]);
+var yScale = d3.scaleTime()
+  .domain([midnight, midnight + dayInMill - 1])
+  .nice(d3.timeDay, 1)
+  .rangeRound([padding, height - paddingBottom]);
+function drawLines(svg, height, paddingBottom, xScale, scale) {
+  var importantDates = [inaugurationDay, electionDay, campaignStartDay, y2016, y2017, y2018]
+  var names = ["Inauguration Day ", "2016 Presidential Election", "Campaign Begins", "2016", "2017", "2018"]
+	var ids = ["#inaug","#election","#campaign","#y16", "#y17", "#y18"]
+  importantDates.forEach(function(d, i){
+    var isNotYear = isNaN(names[i]);
+		var notCampaign = !(names[i].includes("Campaign"));
+		var isCampaign = (names[i].includes("Campaign"));
+		var isElect = (names[i].includes("Election"));
+
+    svg.append("text")
+    .attr("x", xScale(d))
+    .attr("y", height - paddingBottom)
+		.attr("id",(isElect? "#election" : void(0)))
+		.attr("text-anchor", "middle")
+		.attr("font-weight", 800)
+    .attr("font-size", (isNotYear ? 20 : 14) * scale)
+    .text(names[i])
+    .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 120 : 60) : (isElect ? 0 : 20))*scale +  ")");
+		//condition1 ? (condition2 ? "true true": "true false") : (condition2 ? "false true" : "false false");
+  })
+}
+function drawCircles(svgV, xScale, yScale, data, scale, isMedia){
+  data.forEach(function(d){
+    //if (!d.is_media && !isSmall) return
+    var opacity = 0.6;
+    var color = "rgb(208, 211, 212)"
+    color = isMedia ? (d.is_media ? "rgb(40, 116, 166)" : color) : "rgb(40, 116, 166)"
+		opacity = isMedia ? (d.is_media ? opacity : 0.5) : opacity
+    svgV.append("circle")
+    .attr("r", 3*scale)
+    .attr("opacity", opacity)
+    .attr("fill", color)
+    .attr("cx", xScale(d.created_at))
+    .attr("cy", yScale(getTime(d.created_at)))
+  })
+}
+function getTime(date){
+   return midnight +
+          (date.getHours() * 60 * 60 * 1000) +
+          (date.getMinutes() * 60 * 1000) +
+          (date.getSeconds() * 1000);
+}
+d3.json("data.json", callback);
+var mediaData = '[';
+var testCount = 0;
+function callback(data) {
+  rawData = data;
+  // fix date
+  rawData.forEach(function(d, i) {
+    var date = d.created_at;
+    d.created_at = new Date(date);
+    d.is_media = false;
+    for (var i = 0; i < media.length; i++) {
+      var keyword = media[i];
+			lowercased_text = d.text.toLowerCase();
+      if(lowercased_text.includes(keyword)){
+        d.is_media = true;
+				mediaData += JSON.stringify(d) + ', ';
+				testCount++;
+        break;
+      }
+    }
+		if (d.is_media == true) {
+			mediaCount++;
+		} else {
+			notMediaCount++;
+		}
+  })
+  console.log(rawData.filter((d)=>{return d.is_media}).length)
+  buildScatterplots();
+}
+function buildScatterplots(){
+  for (var i = 1; i < 3; i++) {
+    var vis = d3.select("#div" + i)
+    vis.append("svg")
+      .attr("id", "graph" + i)
+      .attr("width", width)
+      .attr("height", height);
+    var svg = d3.select("#graph" + i)
+    svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("fill","rgb(232,245,253)");
+    svg.append("line")
+      .attr("id", "#electionline")
+      .attr("stroke-width", 3)
+      .attr("stroke", linecolor)
+      .attr("opacity", 0.7)
+      .attr("x1", xScale(electionDay))
+      .attr("x2", xScale(electionDay))
+      .attr("y1", height)
+      .attr("y2", 0);
+    svg.append("line")
+      .attr("id", "#campaignline")
+      .attr("stroke-width", 3)
+      .attr("stroke", linecolor)
+      .attr("opacity", 0.7)
+      .attr("x1", xScale(new Date(2015, 5, 15)))
+      .attr("x2", xScale(new Date(2015, 5, 15)))
+      .attr("y1", height - paddingBottom +32)
+      .attr("y2", height - paddingBottom);
+    svg.append("line")
+      .attr("id", "#inaugurationline")
+      .attr("stroke-width", 3)
+      .attr("stroke", linecolor)
+      .attr("opacity", 0.7)
+      .attr("x1", xScale(new Date(2017, 0, 21)))
+      .attr("x2", xScale(new Date(2017, 0, 21)))
+      .attr("y1", height - paddingBottom +32)
+      .attr("y2", height - paddingBottom);
+    var xAxis = d3.axisBottom(xScale);
+      svg.append("g")
+      .attr("class", "xAxis")
+      .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+      .call(xAxis
+        .tickFormat(d3.timeFormat('%b'))
+        .tickSize(0))
+      .selectAll("text").remove()
+
+    /** The Y-Axis code for scale and axis */
+    svg.append("text")
+      .text("fox & friends")
+      .style("font-size", 12)
+      .style("font-style", "italic")
+      .attr("x", width - paddingSides + 5)
+      .attr("text-bottom", "middle")
+      .attr("y", 170);
+    svg.append("text")
+      .text("timeslot")
+      .style("font-size", 12)
+      .style("font-style", "italic")
+      .attr("x", width - paddingSides + 5)
+      .attr("text-bottom", "middle")
+      .attr("y", 185);
+    svg.append("text")
+      .text("time of day tweeted")
+      .style("font-size", 16)
+      .style("font-family", "Open Sans")
+      .style("font-weight", 700)
+      .style("letter-spacing", 3)
+      .attr("transform", "rotate(-90)")
+      .attr("x",-350)
+      .attr("y",40);
+    var yAxis = d3.axisLeft(yScale);
+      svg.append("g")
+      .attr("class", "yAxis")
+      .style("font-size", 10)
+      .style("font-family","Consolas")
+      .attr("transform", "translate(" + paddingSides + ", 0)")
+      .call(yAxis
+        .tickFormat(d3.timeFormat('%H:%M'))
+        .tickSize(0)
+        .tickPadding(8))
+    svg.append("rect")
+      .attr("id","electionLabelHighlight")
+      .attr("fill", linecolor)
+      .attr("stroke", linecolor)
+      .attr("stroke-width",3)
+      .attr("width", 250)
+      .attr("height", 22)
+      .attr("opacity", 0.7)
+      .attr("x", xScale(electionDay)-131)
+      .attr("y", height - paddingBottom+80);
+    svg.append("rect")
+      .attr("id","campaignLabelHighlight")
+      .attr("stroke", linecolor)
+      .attr("fill", "none")
+      .attr("stroke-width",3)
+      .attr("width", 150)
+      .attr("height", 22)
+      .attr("opacity", 0.7)
+      .attr("x", xScale(campaignStartDay)-27)
+      .attr("y", height - paddingBottom+32);
+    svg.append("rect")
+      .attr("id","inaugurationLabelHighlight")
+      .attr("stroke", linecolor)
+      .attr("fill", "none")
+      .attr("stroke-width",3)
+      .attr("width", 150)
+      .attr("height", 22)
+      .attr("opacity", 0.7)
+      .attr("x", xScale(inaugurationDay)-27)
+      .attr("y", height - paddingBottom+32);
+    drawCircles(svg, xScale, yScale, rawData, 1, i === 2);
+    drawLines(svg, height, paddingBottom, xScale, 0.8);
+  }
+}
+/******************************** END GRAPH 1 ****************************/
+/********************************** GRAPH 2 ******************************/
+// draw SVG set-up
+var graph2 = d3.select("#div3");
+graph2.append("svg")
+.attr("id","graph2")
+.attr("width", width)
+.attr("height", height);
+var svg2 = d3.select("#graph2");
+svg2.append("rect")
+.attr("width", width)
+.attr("height", height)
+.attr("x", 0)
+.attr("y", 0)
+.attr("fill","rgb(232,245,253)");
+svg2.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", height)
+  .attr("y2", -10);
+/** The X-Axis code for scale and axis */
+var monthScale = xScale;
+var monthAxis = d3.axisBottom(monthScale);
+  svg2.append("g")
+  .attr("class", "monthAxis")
+	.style("font-size", 14)
+	.style("font-weight", "bold")
+	.style("font-family","Consolas")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+    .tickFormat(d3.timeFormat('%b')));
+/** The Y-Axis code for scale and axis */
+var percentageScale = d3.scaleLinear()
+  .domain([0,1])
+  .rangeRound([height - paddingBottom, padding]);
+var percentageAxis = d3.axisLeft(percentageScale);
+  svg2.append("g")
+  .attr("id", "#percentAxis")
+	.style("font-size", 10)
+	.style("font-family","Consolas")
+  .attr("transform", "translate(" + paddingSides + ", 0)")
+  .call(percentageAxis
+		.tickFormat(d3.format(".0%"))
+    .tickSize(0)
+    .tickPadding(8));
+/******************************** END GRAPH 2 ****************************/
+/********************************** GRAPH 3 ******************************/
+var graph3 = d3.select("#div4");
+graph3.append("svg")
+.attr("id","graph3")
+.attr("width", width)
+.attr("height", height);
+var svg3 = d3.select("#graph3");
+svg3.append("line")
+	.attr("id", "#electionline")
+	.attr("stroke-width", 3)
+  .attr("stroke", linecolor)
+	.attr("opacity", 0.7)
+  .attr("x1", xScale(new Date(2016, 10, 8)))
+  .attr("x2", xScale(new Date(2016, 10, 8)))
+  .attr("y1", height)
+  .attr("y2", 0);
+svg3.append("g")
+  .attr("class", "xAxis")
+	.style("font-size", 14)
+	.style("font-weight", "bold")
+	.style("font-family","Consolas")
+  .attr("transform", "translate(0," + (height - paddingBottom) + ")")
+  .call(monthAxis
+    .tickFormat(d3.timeFormat('%b')));
+svg3.append("g")
+  .attr("id", "#testAxis")
+  .attr("transform", "translate(" + paddingSides + ", 0)")
+  .call(percentageAxis
+    .tickSize(0)
+    .tickPadding(8));
+/******************************** END GRAPH 3 ****************************/
+</script>
+
+<script>
+/********************************** GRAPH 4 ******************************/
+var graph4 = d3.select("#div5");
+graph4.append("svg")
+.attr("id","graph4")
+.attr("width", width)
+.attr("height", height);
+/******************************** END GRAPH 4 ****************************/
+function createSmallGraphs(){
+  var lowercased = rawData.map(function(d){
+    d.text = d.text.toLowerCase()
+    return d;
+  })
+  var filtered = []
+  for (var i = 0; i < keywords.length; i++) {
+    var regex = new RegExp(keywords[i]);
+    var filter = lowercased.filter(function(d) {
+      return regex.test(d.text)
+    })
+    var before = 0;
+    var after = 0;
+    filtered.push(filter)
+    // filtered.push([keywords[i], before*1.0/beforeElectionCount, after*1.0/afterElectionCount])
+  }
+  console.log(filtered)
+  generateGraph(filtered)
+}
+function generateGraph(arr){
+  var lwidth = 950
+  var lheight = 475
+  var lpadding = 25;
+  var lpaddingSides = 50;
+  var lpaddingBottom = 100
+  arr.forEach(function(data, i) {
+    var body = d3.select("body")
+    body.append("svg")
+    .attr("id", "svg" + i)
+    .attr("width", lwidth)
+    .attr("height", lheight);
+    var svgLoop = d3.select("#svg" + i)
+    var xLoopScale = d3.scaleTime()
+        .domain([mindate, maxdate])
+        .range([lpaddingSides, lwidth - lpaddingSides]);
+    var xLoopAxis = d3.axisBottom(xLoopScale);
+      svgLoop.append("g")
+      .attr("class", "xLoopAxis")
+      .attr("transform", "translate(0," + (lheight - lpaddingBottom) + ")")
+      .call(xLoopAxis
+        .tickFormat(d3.timeFormat('%b'))
+        .tickSize(0))
+      .selectAll("text").remove()
+    var yLoopScale = d3.scaleTime()
+      .domain([midnight, midnight + dayInMill - 1])
+      .nice(d3.timeDay, 1)
+      .rangeRound([lpadding, lheight - lpaddingBottom]);
+    var yLoopAxis = d3.axisLeft(yLoopScale);
+      svgLoop.append("g")
+      .attr("class", "yLoopAxis")
+      .attr("transform", "translate(" + lpaddingSides + ", 0)")
+      .call(yLoopAxis
+        .tickFormat(d3.timeFormat('%H:%M'))
+        .tickSize(0)
+        .tickPadding(8))
+    drawCircles(svgLoop, xLoopScale, yLoopScale, data, .6, true);
+    drawLines(svgLoop, lheight, lpaddingBottom, xLoopScale, .5);
+    svgLoop.append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", lwidth/2)
+    .attr("y", 10)
+    .text(titles[i]);
+  })
+}
+</script>
+</div> <!-- end parallelx div-->
+</body>
+</html>
