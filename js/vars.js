@@ -29,17 +29,18 @@ function drawLines(svg, height, paddingBottom, xScale, scale, addElectionLabel) 
     if (!addElectionLabel && names[i].includes("Election")) { return; }
 
     svg.append("text")
-    .attr("x", xScale(d))
-    .attr("y", height - paddingBottom)
-    .attr("id",(isElect? "#election" : void(0)))
-    .attr("text-anchor", "middle")
-    .attr("font-weight", 800)
-    .attr("font-size", (isNotYear ? 20 : 14) * scale)
-    .text(names[i])
-    .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 82 : 60) : (isElect ? 0 : 20))*scale +  ")");
+      .attr("x", xScale(d))
+      .attr("y", height - paddingBottom)
+      .attr("id",(isElect? "#election" : void(0)))
+      .attr("text-anchor", "middle")
+      .attr("font-weight", 800)
+      .attr("font-size", (isNotYear ? 20 : 14) * scale)
+      .text(names[i])
+      .attr("transform", "translate(" + (isNotYear ? (isElect ? -10 : 60) : (isElect ? 0 : 0))*scale + "," + (isNotYear ? (isElect ? 82 : 60) : (isElect ? 0 : 20))*scale +  ")");
   })
 }
 
+// the x-scale used in all but the last graph, spanning 6/15/15 -> 2/1/18
 var xScale = d3.scaleTime()
     .domain([mindate, maxdate])
     .range([paddingSides, width - paddingSides]);

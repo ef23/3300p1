@@ -5,25 +5,29 @@ d3.queue()
 .await(callback);
 
 var mediaData = '[';
-var testCount = 0;
 
+// load and process all
 function callback(err, data, medData) {
     rawData = data;
-    // fix date
+
     rawData.forEach(function(d, i) {
+      // convert the created_at date to JavaScript Dates
       var date = d.created_at;
       d.created_at = new Date(date);
       d.is_media = false;
+
+      // scan tweets if they are media tweets
       for (var i = 0; i < media.length; i++) {
         var keyword = media[i];
         lowercased_text = d.text.toLowerCase();
         if(lowercased_text.includes(keyword)){
           d.is_media = true;
           mediaData += JSON.stringify(d) + ', ';
-          testCount++;
           break;
         }
       }
+
+      // accumulate counts for percentages
       if (d.is_media == true) {
         mediaCount++;
       } else {
