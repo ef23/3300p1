@@ -57,7 +57,7 @@ var div5 = d3.select("#div5");
 div5.append("svg")
   .attr("id","graph5")
   .attr("width", width)
-  .attr("height", height*1.25);
+  .attr("height", height*2);
 	
 var svg5 = d3.select("#graph5");
 
@@ -116,19 +116,22 @@ svg5.append("text")
 for (var i=0; i < labels.length; i++) {
 	var g = group5.append("g").attr("id","#g"+(i+1));
 	makeWaffle(ttlcounts[i],fakecounts[i],g,xScale(electionDay)-250,prevH);
-	prevH += 100;
+	prevH += (Math.ceil(ttlcounts[i]/25)*20) +20;
+	
+	var numRows = Math.ceil(ttlcounts[i]/25);
+	var y_move = (numRows*10);
 	
 	svg5.append("text")
 		.attr("x", xScale(electionDay)-280)
-		.attr("y", prevH-50)
-		.text(labels[i])
+		.attr("y", prevH-y_move)
+		.text("#" + (i+1) + ".) " + labels[i])
 		.style("font-size", 20)
 		.style("font-weight", 100)
 		.style("text-anchor","end");	
 	
 	svg5.append("text")
 		.attr("x", xScale(electionDay)+270)
-		.attr("y", prevH-50)
+		.attr("y", prevH-y_move)
 		.text(ttlcounts[i] + " tweets")
 		.style("font-size", 20)
 		.style("font-weight", 100);
@@ -142,11 +145,11 @@ function makeWaffle(totalCount,count1,svg_group,x,y) {
 	var coordx = x;
 	var coordy = y;
 	
-	for (var i = 1; i < 101; i++) {
+	for (var i = 1; i < totalCount + 1; i++) {
 		svg_group.append("rect")
 		.attr("height", squareSize)
 		.attr("width", squareSize)
-		.attr("fill", (i<percent_formatted) ? "#D6EAF8":"#B0C4DE")
+		.attr("fill", (i<count1) ? "#D6EAF8":"#B0C4DE")
 		.attr("stroke-width","0.25")
 		.attr("stroke","grey")
 		.attr("x",coordx)
