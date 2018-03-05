@@ -36,18 +36,18 @@ function createNewsOutletGraph(data){
   .attr("fill","rgb(232,245,253)");
 
   svg2.append("g")
-  .attr("class", "monthAxis")
+  .attr("class", "axis")
   .style("font-size", 14)
   .style("font-weight", "bold")
-  .style("font-family","Consolas")
+  .style("font-family","Consolas,monaco,monospace")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
   .tickFormat(d3.timeFormat('%b')));
   /** The Y-Axis code for scale and axis */
   svg2.append("g")
-  .attr("id", "#percentAxis")
+  .attr("class", "axis")
   .style("font-size", 10)
-  .style("font-family","Consolas")
+  .style("font-family","Consolas,monaco,monospace")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(percentageAxis
   .tickFormat(d3.format(".0%"))
@@ -135,18 +135,18 @@ function createFakeNewsAreaGraph(data){
   .attr("fill","rgb(232,245,253)");
 
   svg2.append("g")
-  .attr("class", "monthAxis")
+  .attr("class", "axis")
   .style("font-size", 14)
   .style("font-weight", "bold")
-  .style("font-family","Consolas")
+  .style("font-family","Consolas,monaco,monospace")
   .attr("transform", "translate(0," + (height - paddingBottom) + ")")
   .call(monthAxis
   .tickFormat(d3.timeFormat('%b')));
   /** The Y-Axis code for scale and axis */
   svg2.append("g")
-  .attr("id", "#percentAxis")
+  .attr("class", "axis")
   .style("font-size", 10)
-  .style("font-family","Consolas")
+  .style("font-family","Consolas,monaco,monospace")
   .attr("transform", "translate(" + paddingSides + ", 0)")
   .call(percentageAxis
   .tickFormat(d3.format(".0%"))

@@ -115,15 +115,15 @@ function buildScatterplots(){
 
     // create the y-axis
     var yAxis = d3.axisLeft(yScale);
-      svg.append("g")
-        .attr("class", "yAxis")
-        .style("font-size", 10)
-        .style("font-family","Consolas")
-        .attr("transform", "translate(" + paddingSides + ", 0)")
-        .call(yAxis
-          .tickFormat(d3.timeFormat('%I:%M:%p'))
-          .tickSize(0)
-          .tickPadding(8))
+    svg.append("g")
+      .attr("class", "axis")
+      .style("font-size", 10)
+      .style("font-family","Consolas,monaco,monospace")
+      .attr("transform", "translate(" + paddingSides + ", 0)")
+      .call(yAxis
+        .tickFormat(d3.timeFormat('%I:%M:%p'))
+        .tickSize(0)
+        .tickPadding(8))
 
     // y-axis label
     svg.append("text")
