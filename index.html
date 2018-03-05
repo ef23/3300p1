@@ -4,16 +4,17 @@
 <title>INFO3300 Project 1</title>
 <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300, 400,700,800|Space+Mono:400,400i,700" rel="stylesheet">
+<link href="resources/Consolas.ttf" rel='stylesheet' type='text/css'>
 
 <style>
 svg {display:block;margin:auto;/*border: solid #ccc 1px;*/}
-img.right{position:absolute; top:0; right:0; }
+img {display:block; margin: auto; padding-bottom: 5%}
 h1 { font-family: 'Open Sans', sans-serif; font-weight: 800; letter-spacing: 4px; font-size: 50px; color: rgb(8,160,233); text-align:center; padding-top: 60px;}
 h2 { font-family: 'Open Sans', sans-serif; font-weight: 300; font-size: 20px; text-align:center; color: 'rgb(40, 116, 166)';}
 h4 { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 24px; text-align:center; margin: 10 0 10 0;}
-img { width:150%; margin-top:50%; padding-right: 25%}
 body { font-family: 'Space Mono: 400', monospace; /*margin: auto; */background-color:rgb(232,245,253)}
 p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
+.axis { font: 14px Consolas; }
 .header {padding-bottom: 50px;}
 </style>
 
@@ -44,6 +45,7 @@ p {font-family: 'Open Sans', sans-serif; font-weight: 300; text-align:center;}
   <div id="div5">
   <h2> % tweets per news outlet associated with "fake news" </h2>
   </div>
+  <img src="https://s.faketrumptweet.com/jedmu1t6_13nkhbb_km8z88.png"/>
 </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="js/vars.js"></script>
@@ -132,7 +134,7 @@ for (var i=0; i < labels.length; i++) {
 	svg5.append("text")
 		.attr("x", xScale(electionDay)+270)
 		.attr("y", prevH-y_move)
-		.text(ttlcounts[i] + " tweets")
+		.text(ttlcounts[i] + " tweets, " + Math.round(((fakecounts[i]/ttlcounts[i])*100)) + "% fake")
 		.style("font-size", 20)
 		.style("font-weight", 100);
 };
