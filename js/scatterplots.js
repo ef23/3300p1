@@ -78,14 +78,14 @@ function buildScatterplots(){
         .text("fox & friends")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides+10)
+        .attr("x", width - paddingSides+15)
         .attr("text-bottom", "middle")
         .attr("y", 150);
       svg.append("text")
         .text("time slot")
         .style("font-size", 12)
         .style("font-style", "italic")
-        .attr("x", width - paddingSides + 20)
+        .attr("x", width - paddingSides + 25)
         .attr("text-bottom", "middle")
         .attr("y", 165);
       var foxStartTime = new Date()
@@ -93,13 +93,34 @@ function buildScatterplots(){
       var foxEndTime = new Date()
       foxEndTime.setHours(9,0,0)
 
-      svg.append("rect")
+      svg.append("text")
         .attr("x", paddingSides)
-        .attr("y", yScale(getTime(foxStartTime)))
-        .attr("width", width - paddingSides*2)
-        .attr("height", (yScale(getTime(foxEndTime)) - yScale(getTime(foxStartTime))))
-        .attr("opacity", 0.2)
-        .attr("fill", "rgb(72,201,176)")
+        .attr("y", (yScale(getTime(foxEndTime)) - yScale(getTime(foxStartTime)))/2)
+        // .attr("fill", "rgb(72,201,176)")
+        .style("font-size", 12)
+        .text("]")
+
+      var path =
+        "M "
+        + (width - paddingSides)
+        + " "
+        + yScale(getTime(foxStartTime))
+        + " H "
+        + (width - paddingSides + 10)
+        + " V "
+        + yScale(getTime(foxEndTime))
+        // + (yScale(getTime(foxEndTime)) - yScale(getTime(foxStartTime)))
+        + " L "
+        + (width - paddingSides)
+        + " "
+        + yScale(getTime(foxEndTime))
+        console.log(path)
+      svg.append("path")
+        .attr("d", path)
+        .attr("fill", "none")
+        .attr("stroke", "black")
+        .attr("stroke-width", 3)
+
 
       svg.append("rect")
         .attr("id","electionLabelHighlight")
